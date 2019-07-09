@@ -20,6 +20,7 @@ class Attractor {
   }
   drawSatellites(){
     this.satellites.forEach((satellite, index, array) => {
+      satellite.updatePosition()
       satellite.draw()
       satellite.drawAttractVector()
       satellite.drawTangentVector()
@@ -29,13 +30,16 @@ class Attractor {
 }
 
 class Satellite {
-  constructor(x , y){
+  constructor(x , y , r){
     this.parentAttractorIndex = 0;
+    this.radius = 10;
     this.centerX = x;
     this.centerY = y;
-    this.radius = 10;
-    this.velocity = 10;
-    // this.repulseF = 10; not sure if i need this right now
+    this.velocityX = 0; //satellites spawn +x from attractor so sets in motion clockwise
+    this.velocityY = -10;
+    this.accelerationX = 0;
+    this.accelerationY = 0;
+    this.naturalOrbit = r;
   }
   draw(){
     ctx.beginPath()
@@ -45,7 +49,6 @@ class Satellite {
     ctx.stroke()
   }
   drawAttractVector(){
-    this.updatePosition()
     ctx.beginPath()
     ctx.moveTo(this.centerX,this.centerY)
     let vectorX = game.mouseX - this.centerX
@@ -80,7 +83,7 @@ class Satellite {
   updatePosition(){
     let parentAttractorX = game.attractors[this.parentAttractorIndex].centerX
     let parentAttractorY = game.attractors[this.parentAttractorIndex].centerY
-    this.centerX = parentAttractorX + game.attractors[game.activeAttractorIndex].radius*3
+    this.centerX = parentAttractorX + this.naturalOrbit
     this.centerY = parentAttractorY
   }
 }
@@ -103,7 +106,9 @@ const game = {
     this.attractors.push(attractor)
 
     document.onclick = () => {
-      let satellite = new Satellite(game.mouseX + game.attractors[this.activeAttractorIndex].radius*3,game.mouseY)
+      let attractorSatCount = game.attractors[this.activeAttractorIndex].satellites.length
+      let orbitRadius = game.attractors[this.activeAttractorIndex].radius*3*(1+attractorSatCount)
+      let satellite = new Satellite(game.mouseX + orbitRadius , game.mouseY, orbitRadius)
       game.attractors[this.activeAttractorIndex].satellites.push(satellite)
     }
 
