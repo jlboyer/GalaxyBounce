@@ -76,7 +76,6 @@ const game = {
   mouseX: 0,
   mouseY: 0,
   attractors: [],
-  satellites: [],
   initialize(){
     
     document.onmousemove = (evt) => {
@@ -84,9 +83,12 @@ const game = {
       game.mouseY= this.getMousePos(canvas, evt).y
     }
     
+    let attractor = new Attractor(this.mouseX,this.mouseY)
+    this.attractors.push(attractor)
+
     document.onclick = () => {
       let satellite = new Satellite(game.mouseX + game.attractors[0].radius*3,game.mouseY)
-      game.satellites.push(satellite)
+      game.attractors[0].satellites.push(satellite)
     }
 
   /*   document.onkeypress = (evt) => {
@@ -96,8 +98,6 @@ const game = {
       }
     } */
 
-    let attractor = new Attractor(this.mouseX,this.mouseY)
-    this.attractors.push(attractor)
 
     this.animate()
   },
@@ -108,11 +108,13 @@ const game = {
     game.attractors[0].centerY = game.mouseY
     game.attractors[0].draw()
 
-    game.satellites.forEach((satellite, index, array) => {
-      satellite.draw()
-      satellite.drawAttractVector()
-      satellite.drawTangentVector()
-      satellite.drawSiblingVector(array.slice(index))
+    game.attractors.forEach(attractor => {
+      attractor.satellites.forEach((satellite, index, array) => {
+        satellite.draw()
+        satellite.drawAttractVector()
+        satellite.drawTangentVector()
+        satellite.drawSiblingVector(array.slice(index))
+      })
     })
     window.requestAnimationFrame(game.animate)
   },
