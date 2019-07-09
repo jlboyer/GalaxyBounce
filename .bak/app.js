@@ -8,7 +8,6 @@ class Attractor {
     this.centerY = y;
     this.radius = Math.random()*10 + 10;
     this.attractF = 10;
-    this.satellites = [];
   } 
   draw(){
     ctx.beginPath()
@@ -75,7 +74,7 @@ class Satellite {
 const game = {
   mouseX: 0,
   mouseY: 0,
-  attractors: [],
+  attractor: {},
   satellites: [],
   initialize(){
     
@@ -85,28 +84,28 @@ const game = {
     }
     
     document.onclick = () => {
-      let satellite = new Satellite(game.mouseX + game.attractors[0].radius*3,game.mouseY)
+      let satellite = new Satellite(game.mouseX + game.attractor.radius*3,game.mouseY)
       game.satellites.push(satellite)
     }
 
-  /*   document.onkeypress = (evt) => {
+    document.onkeypress = (evt) => {
       if (evt.code = "Space") {
         let attractor = new Attractor(this.mouseX,this.mouseY)
         this.attractor = attractor
       }
-    } */
+    }
 
     let attractor = new Attractor(this.mouseX,this.mouseY)
-    this.attractors.push(attractor)
+    this.attractor = attractor
 
     this.animate()
   },
   animate(){
     game.clearCanvas()
 
-    game.attractors[0].centerX = game.mouseX
-    game.attractors[0].centerY = game.mouseY
-    game.attractors[0].draw()
+    game.attractor.centerX = game.mouseX
+    game.attractor.centerY = game.mouseY
+    game.attractor.draw()
 
     game.satellites.forEach((satellite, index, array) => {
       satellite.draw()
