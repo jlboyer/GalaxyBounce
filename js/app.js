@@ -43,8 +43,8 @@ const game = {
   initialize(){
     
     document.onmousemove = (evt) =>{
-      game.mouseX = getMousePos(canvas, evt).x
-      game.mouseY= getMousePos(canvas, evt).y
+      game.mouseX = this.getMousePos(canvas, evt).x
+      game.mouseY= this.getMousePos(canvas, evt).y
     }
     
     let planetA = new Planet(this.mouseX,this.mouseY)
@@ -63,6 +63,13 @@ const game = {
   },
   clearCanvas() {
     ctx.clearRect(0, 0, canvas.width, canvas.height)  
+  },
+  getMousePos(canvas, evt) {
+    let rect = canvas.getBoundingClientRect();
+    return {
+      x: evt.clientX - rect.left,
+      y: evt.clientY - rect.top
+    };
   }
 }
 
@@ -77,12 +84,4 @@ document.onclick = (evt) =>{
   console.log(getMousePos(canvas, evt).x + planetA.radius*3)
   console.log(getMousePos(canvas, evt).y + planetA.radius*3)
   shipA.draw()
-}
-
-function getMousePos(canvas, evt) {
-  let rect = canvas.getBoundingClientRect();
-  return {
-    x: evt.clientX - rect.left,
-    y: evt.clientY - rect.top
-  };
 }
