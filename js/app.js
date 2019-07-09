@@ -37,21 +37,26 @@ class PlayerShip {
 
 
 const game = {
+  mouseX: 0,
+  mouseY: 0,
   objects: [],
   initialize(){
-    let planetA = new Planet(300,300)
-    this.objects.push(planetA)
-
+    
     document.onmousemove = (evt) =>{
-      game.objects[0].centerX = getMousePos(canvas, evt).x
-      game.objects[0].centerY= getMousePos(canvas, evt).y
+      game.mouseX = getMousePos(canvas, evt).x
+      game.mouseY= getMousePos(canvas, evt).y
     }
+    
+    let planetA = new Planet(this.mouseX,this.mouseY)
+    this.objects.push(planetA)
 
     this.animate()
   },
   animate(){
     game.clearCanvas()
     game.objects.forEach(object => {
+      object.centerX = game.mouseX
+      object.centerY = game.mouseY
       object.draw()
     })
     window.requestAnimationFrame(game.animate)
