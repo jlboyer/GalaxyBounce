@@ -33,14 +33,23 @@ class Satellite {
     ctx.lineWidth = 2
     ctx.stroke()
   }
-  drawVector(vX,vY){
-    console.log(vX,vY)
+  drawAttractVector(){
     ctx.beginPath()
     ctx.moveTo(this.centerX,this.centerY)
     let vectorX = game.mouseX - this.centerX
     let vectorY = game.mouseY - this.centerY
     ctx.lineTo(this.centerX+vectorX,this.centerY+vectorY)
     ctx.strokeStyle = 'rgba(150, 150, 150, 1)';
+    ctx.lineWidth = 2
+    ctx.stroke()
+  }
+  drawTangentVector(){
+    ctx.beginPath()
+    ctx.moveTo(this.centerX,this.centerY)
+    let vectorX = game.mouseX - this.centerX
+    let vectorY = game.mouseY - this.centerY
+    ctx.lineTo(this.centerX+vectorY, this.centerY-vectorX)
+    ctx.strokeStyle = 'rgba(219, 10, 91, 1)';
     ctx.lineWidth = 2
     ctx.stroke()
   }
@@ -82,10 +91,9 @@ const game = {
     game.attractor.draw()
 
     game.satellites.forEach(satellite => {
-      let vectorX = game.mouseX - satellite.centerX
-      let vectorY = game.mouseY - satellite.centerY
       satellite.draw()
-      satellite.drawVector(vectorX,vectorY)
+      satellite.drawAttractVector()
+      satellite.drawTangentVector()
     })
     window.requestAnimationFrame(game.animate)
   },
