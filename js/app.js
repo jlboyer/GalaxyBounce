@@ -33,6 +33,19 @@ class Satellite {
     ctx.lineWidth = 2
     ctx.stroke()
   }
+  drawVector(vX,vY){
+    console.log(vX,vY)
+    ctx.beginPath()
+    ctx.moveTo(this.centerX,this.centerY)
+    let vectorX = game.mouseX - this.centerX
+    let vectorY = game.mouseY - this.centerY
+    ctx.lineTo(this.centerX+vectorX,this.centerY+vectorY)
+    ctx.strokeStyle = 'rgba(150, 150, 150, 1)';
+    ctx.lineWidth = 2
+    ctx.stroke()
+  }
+  updatePosition(){
+  }
 }
 
 
@@ -47,7 +60,6 @@ const game = {
     document.onmousemove = (evt) => {
       game.mouseX = this.getMousePos(canvas, evt).x
       game.mouseY= this.getMousePos(canvas, evt).y
-      console.log(game.attractor)
     }
     
     document.onclick = (evt) => {
@@ -69,8 +81,11 @@ const game = {
     game.attractor.centerY = game.mouseY
     game.attractor.draw()
 
-    game.satellites.forEach(object => {
-      object.draw()
+    game.satellites.forEach(satellite => {
+      let vectorX = game.mouseX - satellite.centerX
+      let vectorY = game.mouseY - satellite.centerY
+      satellite.draw()
+      satellite.drawVector(vectorX,vectorY)
     })
     window.requestAnimationFrame(game.animate)
   },
