@@ -76,6 +76,7 @@ const game = {
   mouseX: 0,
   mouseY: 0,
   attractors: [],
+  activeAttractorIndex: 0,
   initialize(){
     
     document.onmousemove = (evt) => {
@@ -91,12 +92,38 @@ const game = {
       game.attractors[0].satellites.push(satellite)
     }
 
-  /*   document.onkeypress = (evt) => {
-      if (evt.code = "Space") {
-        let attractor = new Attractor(this.mouseX,this.mouseY)
-        this.attractor = attractor
+    document.onkeydown = (evt) => {
+      //Spacebar creates a new attractor and makes this the active attractor
+      //KeyDown cycles the active attractor index 
+      console.log(evt.code)
+      switch (evt.code) {
+        case "Space":
+          let attractor = new Attractor(this.mouseX,this.mouseY)
+          this.attractors.push(attractor)
+          this.activeAttractorIndex = this.attractors.length - 1
+          break;
+        case "ArrowDown":
+          if (this.activeAttractorIndex > this.attractors.length) {
+            this.activeAttractorIndex--
+          } else {
+            this.activeAttractorIndex = this.attractors.length - 1
+          }
+          break;
+        case "ArrowUp":
+          if (this.activeAttractorIndex < this.attractors.length) {
+            this.activeAttractorIndex++
+          } else {
+            this.activeAttractorIndex = 0
+          }
+          break;
+        default:
+          break;
       }
-    } */
+      /* if (evt.code = "Space") {
+        let attractor = new Attractor(this.mouseX,this.mouseY)
+        this.attractors.push(attractor)
+      } else if*/
+    }
 
 
     this.animate()
