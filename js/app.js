@@ -7,7 +7,7 @@ class Attractor {
     this.centerX = x;
     this.centerY = y;
     this.radius = Math.random()*10 + 10;
-    this.attractF = 10;
+    this.attractK = 10;
     this.satellites = [];
   } 
   draw(){
@@ -36,12 +36,17 @@ class Satellite {
     this.centerX = x;
     this.centerY = y;
     this.velocityX = 0; //satellites spawn +x from attractor so sets in motion clockwise
-    this.velocityY = -10;
+    this.velocityY = 0;
     this.accelerationX = 0;
     this.accelerationY = 0;
+    this.attractorVectorX = 0;
+    this.attractorVectorY = 0;
     this.naturalOrbit = r;
+    this.thetaRads = 0; //update based on satellite position
+    this.mass = 1;
   }
   draw(){
+    this.updatePosition()
     ctx.beginPath()
     ctx.arc(this.centerX,this.centerY,this.radius,0,2*Math.PI,false)
     ctx.strokeStyle = 'rgba(150, 150, 150, 1)';
@@ -49,22 +54,21 @@ class Satellite {
     ctx.stroke()
   }
   drawAttractVector(){
+    // this.setAttractorVector()
+
     ctx.beginPath()
     ctx.moveTo(this.centerX,this.centerY)
 
-    // let vectorX = game.mouseX - this.centerX
-    // let vectorY = game.mouseY - this.centerY
-
-    console.log(this.parentAttractorIndex)
-
-    let vectorX = game.attractors[this.parentAttractorIndex].centerX - this.centerX
-    let vectorY = game.attractors[this.parentAttractorIndex].centerY - this.centerY
-    
-
-    ctx.lineTo(this.centerX+vectorX,this.centerY+vectorY)
+    ctx.lineTo(this.centerX+this.attractorVectorX,this.centerY+this.attractorVectorY)
     ctx.strokeStyle = 'rgba(150, 150, 150, 1)';
     ctx.lineWidth = 2
     ctx.stroke()
+  }
+  setAttractorVector(){
+    this.attractorVectorX = game.attractors[this.parentAttractorIndex].centerX - this.centerX
+    this.attractorVectorY = game.attractors[this.parentAttractorIndex].centerY - this.centerY
+    this.thetaRads = Math.acos(this.attractorVectorX / Math.sqrt(Math.pow(this.attractorVectorX,2) + Math.pow(this.attractorVectorY,2)))
+    // console.log(this.thetaRads)
   }
   drawTangentVector(){
     ctx.beginPath()
@@ -89,16 +93,34 @@ class Satellite {
       })
   }
   updatePosition(){
-    let parentAttractor = game.attractors[this.parentAttractorIndex]
-  
+    this.setAttractorVector()
+    this.updateAcceleration()
+    this.updateVelocity()
+    this.centerX += this.velocityX * (1/60) // X = X0 + V * t
+    this.centerY += this.velocityY * (1/60)
 
-    this.centerX = parentAttractor.centerX + this.naturalOrbit
-    this.centerY = parentAttractor.centerY
-    //update velocity by acceleration
-    //update position by velocity
+    // let parentAttractor = game.attractors[this.parentAttractorIndex]
+    // this.centerX = parentAttractor.centerX + this.naturalOrbit
+    // this.centerY = parentAttractor.centerY
+    // //update velocity by acceleration
+
+    // //update position by velocity
   }
   updateVelocity(){
+    //if satellite is closer than natural orbit spring force is positive 
+    this.velocityX -= this.accelerationX * (1/60)  //60FPS?  V = V0 + A * t
+    this.velocityY -= this.accelerationY * (1/60)
+  }
+  updateAcceleration(){
+    let parentAttractorK = game.attractors[this.parentAttractorIndex].attractK
+    let attractorVectorMag = Math.sqrt(Math.pow(this.attractorVectorX,2) + Math.pow(this.attractorVectorY,2))
+    let attractorUnitVectorX = this.attractorVectorX / attractorVectorMag
+    let attractorUnitVectorY = this.attractorVectorY / attractorVectorMag
 
+    let attractorSpringForce = parentAttractorK * (this.naturalOrbit - attractorVectorMag ) // Fspring = k*delta(x)
+    
+    this.accelerationX = (attractorSpringForce * attractorUnitVectorX) / this.mass // F = m*a 
+    this.accelerationY = (attractorSpringForce * attractorUnitVectorY) / this.mass
   }
 }
 
@@ -125,7 +147,6 @@ const game = {
       let satellite = new Satellite(game.mouseX + orbitRadius , game.mouseY, orbitRadius)
       satellite.parentAttractorIndex = this.activeAttractorIndex
       game.attractors[this.activeAttractorIndex].satellites.push(satellite)
-      console.log(satellite)
     }
 
     document.onkeydown = (evt) => {
@@ -139,7 +160,6 @@ const game = {
           this.activeAttractorIndex = this.attractors.length - 1
           break;
         case "ArrowDown":
-          console.log(this.activeAttractorIndex >= this.attractors.length)
           if (this.activeAttractorIndex === 0) {
             this.activeAttractorIndex = this.attractors.length - 1
           } else {
