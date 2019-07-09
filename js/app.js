@@ -1,7 +1,7 @@
 const canvas = document.getElementById('canvas')
 const ctx = canvas.getContext('2d')
 
-class Planet {
+class Attractor {
   constructor(x, y){
     this.centerX = x;
     this.centerY = y;
@@ -17,7 +17,7 @@ class Planet {
   };
 }
 
-class PlayerShip {
+class Satellite {
   constructor(x , y){
     this.centerX = x;
     this.centerY = y;
@@ -39,24 +39,36 @@ class PlayerShip {
 const game = {
   mouseX: 0,
   mouseY: 0,
-  objects: [],
+  attractor: {},
+  satellites: [],
   initialize(){
     
-    document.onmousemove = (evt) =>{
+    document.onmousemove = (evt) => {
       game.mouseX = this.getMousePos(canvas, evt).x
       game.mouseY= this.getMousePos(canvas, evt).y
+      console.log(game.attractor)
     }
     
-    let planetA = new Planet(this.mouseX,this.mouseY)
-    this.objects.push(planetA)
+    document.onclick = (evt) => {
+      game.mouseX = this.getMousePos(canvas, evt).x
+      game.mouseY= this.getMousePos(canvas, evt).y
+      let satellite = new Satellite(game.mouseX,game.mouseY)
+      game.satellites.push(satellite)
+    }
+
+    const attractor = new Attractor(this.mouseX,this.mouseY)
+    this.attractor = attractor
 
     this.animate()
   },
   animate(){
     game.clearCanvas()
-    game.objects.forEach(object => {
-      object.centerX = game.mouseX
-      object.centerY = game.mouseY
+
+    game.attractor.centerX = game.mouseX
+    game.attractor.centerY = game.mouseY
+    game.attractor.draw()
+
+    game.satellites.forEach(object => {
       object.draw()
     })
     window.requestAnimationFrame(game.animate)
@@ -75,13 +87,3 @@ const game = {
 
 
 game.initialize()
-
-
-
-document.onclick = (evt) =>{
-  let shipA = new PlayerShip(getMousePos(canvas, evt).x + planetA.radius*3,getMousePos(canvas, evt).y + planetA.radius*3)
-  console.log(shipA)
-  console.log(getMousePos(canvas, evt).x + planetA.radius*3)
-  console.log(getMousePos(canvas, evt).y + planetA.radius*3)
-  shipA.draw()
-}
