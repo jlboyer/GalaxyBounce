@@ -1,5 +1,6 @@
 const canvas = document.getElementById('canvas')
 const ctx = canvas.getContext('2d')
+canvas.style.cursor = 'none';
 
 class Attractor {
   constructor(x, y){
@@ -52,7 +53,7 @@ const game = {
     document.onclick = (evt) => {
       game.mouseX = this.getMousePos(canvas, evt).x
       game.mouseY= this.getMousePos(canvas, evt).y
-      let satellite = new Satellite(game.mouseX,game.mouseY)
+      let satellite = new Satellite(game.mouseX + game.attractor.radius*3,game.mouseY)
       game.satellites.push(satellite)
     }
 
