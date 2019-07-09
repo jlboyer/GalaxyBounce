@@ -69,8 +69,8 @@ class Satellite {
   drawTangentVector(){
     ctx.beginPath()
     ctx.moveTo(this.centerX,this.centerY)
-    let vectorX = game.mouseX - this.centerX
-    let vectorY = game.mouseY - this.centerY
+    let vectorX = game.attractors[this.parentAttractorIndex].centerX - this.centerX
+    let vectorY = game.attractors[this.parentAttractorIndex].centerY - this.centerY
     ctx.lineTo(this.centerX+vectorY, this.centerY-vectorX)
     ctx.strokeStyle = 'rgba(219, 10, 91, 1)';
     ctx.lineWidth = 2
@@ -113,7 +113,7 @@ const game = {
     
     document.onmousemove = (evt) => {
       game.mouseX = this.getMousePos(canvas, evt).x
-      game.mouseY= this.getMousePos(canvas, evt).y
+      game.mouseY = this.getMousePos(canvas, evt).y
     }
     
     let attractor = new Attractor(this.mouseX,this.mouseY)
