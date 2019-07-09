@@ -20,7 +20,7 @@ class Attractor {
   }
   drawSatellites(){
     this.satellites.forEach((satellite, index, array) => {
-      satellite.updatePosition()
+      //satellite.updatePosition()
       satellite.draw()
       satellite.drawAttractVector()
       satellite.drawTangentVector()
@@ -51,8 +51,16 @@ class Satellite {
   drawAttractVector(){
     ctx.beginPath()
     ctx.moveTo(this.centerX,this.centerY)
-    let vectorX = game.mouseX - this.centerX
-    let vectorY = game.mouseY - this.centerY
+
+    // let vectorX = game.mouseX - this.centerX
+    // let vectorY = game.mouseY - this.centerY
+
+    console.log(this.parentAttractorIndex)
+
+    let vectorX = game.attractors[this.parentAttractorIndex].centerX - this.centerX
+    let vectorY = game.attractors[this.parentAttractorIndex].centerY - this.centerY
+    
+
     ctx.lineTo(this.centerX+vectorX,this.centerY+vectorY)
     ctx.strokeStyle = 'rgba(150, 150, 150, 1)';
     ctx.lineWidth = 2
@@ -81,10 +89,16 @@ class Satellite {
       })
   }
   updatePosition(){
-    let parentAttractorX = game.attractors[this.parentAttractorIndex].centerX
-    let parentAttractorY = game.attractors[this.parentAttractorIndex].centerY
-    this.centerX = parentAttractorX + this.naturalOrbit
-    this.centerY = parentAttractorY
+    let parentAttractor = game.attractors[this.parentAttractorIndex]
+  
+
+    this.centerX = parentAttractor.centerX + this.naturalOrbit
+    this.centerY = parentAttractor.centerY
+    //update velocity by acceleration
+    //update position by velocity
+  }
+  updateVelocity(){
+
   }
 }
 
@@ -109,7 +123,9 @@ const game = {
       let attractorSatCount = game.attractors[this.activeAttractorIndex].satellites.length
       let orbitRadius = game.attractors[this.activeAttractorIndex].radius*3*(1+attractorSatCount)
       let satellite = new Satellite(game.mouseX + orbitRadius , game.mouseY, orbitRadius)
+      satellite.parentAttractorIndex = this.activeAttractorIndex
       game.attractors[this.activeAttractorIndex].satellites.push(satellite)
+      console.log(satellite)
     }
 
     document.onkeydown = (evt) => {
