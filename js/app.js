@@ -16,11 +16,21 @@ class Attractor {
     ctx.strokeStyle = 'rgba(150, 150, 150, 1)';
     ctx.lineWidth = 2
     ctx.stroke()
-  };
+    this.drawSatellites()
+  }
+  drawSatellites(){
+    this.satellites.forEach((satellite, index, array) => {
+      satellite.draw()
+      satellite.drawAttractVector()
+      satellite.drawTangentVector()
+      satellite.drawSiblingVector(array.slice(index))
+    })
+  }
 }
 
 class Satellite {
   constructor(x , y){
+    this.parentAttractorIndex = 0;
     this.centerX = x;
     this.centerY = y;
     this.radius = 10;
@@ -35,6 +45,7 @@ class Satellite {
     ctx.stroke()
   }
   drawAttractVector(){
+    this.updatePosition()
     ctx.beginPath()
     ctx.moveTo(this.centerX,this.centerY)
     let vectorX = game.mouseX - this.centerX
@@ -67,6 +78,10 @@ class Satellite {
       })
   }
   updatePosition(){
+    let parentAttractorX = game.attractors[this.parentAttractorIndex].centerX
+    let parentAttractorY = game.attractors[this.parentAttractorIndex].centerY
+    this.centerX = parentAttractorX + game.attractors[game.activeAttractorIndex].radius*3
+    this.centerY = parentAttractorY
   }
 }
 
@@ -88,14 +103,14 @@ const game = {
     this.attractors.push(attractor)
 
     document.onclick = () => {
-      let satellite = new Satellite(game.mouseX + game.attractors[0].radius*3,game.mouseY)
-      game.attractors[0].satellites.push(satellite)
+      let satellite = new Satellite(game.mouseX + game.attractors[this.activeAttractorIndex].radius*3,game.mouseY)
+      game.attractors[this.activeAttractorIndex].satellites.push(satellite)
     }
 
     document.onkeydown = (evt) => {
       //Spacebar creates a new attractor and makes this the active attractor
       //KeyDown cycles the active attractor index 
-      console.log(evt.code)
+ 
       switch (evt.code) {
         case "Space":
           let attractor = new Attractor(this.mouseX,this.mouseY)
@@ -103,26 +118,23 @@ const game = {
           this.activeAttractorIndex = this.attractors.length - 1
           break;
         case "ArrowDown":
-          if (this.activeAttractorIndex > this.attractors.length) {
-            this.activeAttractorIndex--
-          } else {
+          console.log(this.activeAttractorIndex >= this.attractors.length)
+          if (this.activeAttractorIndex === 0) {
             this.activeAttractorIndex = this.attractors.length - 1
+          } else {
+            this.activeAttractorIndex--
           }
           break;
         case "ArrowUp":
-          if (this.activeAttractorIndex < this.attractors.length) {
-            this.activeAttractorIndex++
-          } else {
+          if (this.activeAttractorIndex + 1 === this.attractors.length) {
             this.activeAttractorIndex = 0
+          } else {
+            this.activeAttractorIndex++
           }
           break;
         default:
           break;
       }
-      /* if (evt.code = "Space") {
-        let attractor = new Attractor(this.mouseX,this.mouseY)
-        this.attractors.push(attractor)
-      } else if*/
     }
 
 
@@ -131,18 +143,11 @@ const game = {
   animate(){
     game.clearCanvas()
 
-    game.attractors[0].centerX = game.mouseX
-    game.attractors[0].centerY = game.mouseY
-    game.attractors[0].draw()
+    //Only the active attractor follows the mouse
+    game.attractors[game.activeAttractorIndex].centerX = game.mouseX
+    game.attractors[game.activeAttractorIndex].centerY = game.mouseY
+    game.attractors.forEach(attractor => attractor.draw())
 
-    game.attractors.forEach(attractor => {
-      attractor.satellites.forEach((satellite, index, array) => {
-        satellite.draw()
-        satellite.drawAttractVector()
-        satellite.drawTangentVector()
-        satellite.drawSiblingVector(array.slice(index))
-      })
-    })
     window.requestAnimationFrame(game.animate)
   },
   clearCanvas() {
