@@ -130,11 +130,14 @@ class Ship {
   }
   outOfBounds() {
     if (this.centerX > canvas.width || this.centerY > canvas.height ||this.centerX < 0 || this.centerY < 0) {
-      console.log(this.centerX, this.centerY);
       game.ships[game.currentPlayer].orbiting = true;
       game.ships[game.currentPlayer].centerX = 130;
       game.ships[game.currentPlayer].centerY = 375;
       game.currentPlayer = Math.abs(game.currentPlayer - 1);
+      game.planets.forEach( planet => {
+        planet.centerX = planet.initialCenterX
+        planet.centerY = planet.initialCenterY
+      })
     }
   }
 }
@@ -143,11 +146,34 @@ class Planet {
   constructor(x = 80, y = 375) {
     this.centerX = x; //initialize with home will update for targets
     this.centerY = y;
+    this.initialCenterX = x
+    this.initialCenterY = y
     this.radius = Math.random() * 20 + 10;
     this.color = "rgba(255, 255, 255, 1)";
     this.hit = false;
+    this.orbitFreq = 1; //1 per sec at 60 FPS
+    this.angularVelocity = 2 * Math.PI * this.orbitFreq;
+    this.rotationAngle = 0;
+    this.orbitRadius = 0;
+  }
+  updateRotationAngle() {
+    this.rotationAngle =
+      this.angularVelocity * (1 / 60) * game.time.getSeconds() +
+      this.angularVelocity * (1 / 60000) * game.time.getMilliseconds();
+  }
+  orbit() {
+    this.centerX =
+      this.orbitRadius * Math.cos(this.rotationAngle) +
+      game.planets[0].centerX; 
+    this.centerY =
+      this.orbitRadius * Math.sin(this.rotationAngle) +
+      game.planets[0].centerY; 
   }
   draw() {
+    this.updateRotationAngle();
+    this.drawOrbit();
+    this.orbit();
+
     ctx.beginPath();
     ctx.arc(this.centerX, this.centerY, this.radius, 0, 2 * Math.PI);
     ctx.fillStyle = this.color;
@@ -155,17 +181,16 @@ class Planet {
     ctx.strokeStyle = "white";
     ctx.lineWidth = 2;
     ctx.stroke();
-    this.drawOrbit();
   }
   drawOrbit() {
     let homeX = game.planets[0].centerX;
     let homeY = game.planets[0].centerY;
-    let r = Math.sqrt(
-      Math.pow(this.centerX - homeX, 2) + Math.pow(this.centerY - homeY, 2)
+    this.orbitRadius = Math.sqrt(
+      Math.pow(this.initialCenterX - homeX, 2) + Math.pow(this.initialCenterY - homeY, 2)
     );
     ctx.strokeStyle = "rgba(255,255,255,0.5)";
     ctx.beginPath();
-    ctx.arc(homeX, homeY, r, 0, 2 * Math.PI);
+    ctx.arc(homeX, homeY, this.orbitRadius, 0, 2 * Math.PI);
     ctx.stroke();
   }
 }
