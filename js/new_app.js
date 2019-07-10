@@ -30,7 +30,7 @@ class Ship {
     this.centerX = 130;
     this.centerY = 375;
     this.orbitRadius = 45;
-    this.orbitFreq = 1;
+    this.orbitFreq = 20;
     this.angularVelocity = 2 * Math.PI * this.orbitFreq;
     this.rotationAngle = 0;
     this.gradient = ctx.createRadialGradient(
@@ -46,10 +46,10 @@ class Ship {
   }
   updateRotationAngle() {
     this.rotationAngle =
-      this.angularVelocity * ((2 * Math.PI) / 60) * time.getSeconds() +
-      this.angularVelocity * ((2 * Math.PI) / 60000) * time.getMilliseconds();
+      this.angularVelocity * (1 / 60) * time.getSeconds() +
+      this.angularVelocity * (1 / 60000) * time.getMilliseconds();
   }
-  updateCenter() {
+  orbit() {
     this.centerX =
       this.orbitRadius * Math.cos(this.rotationAngle) +
       this.parentPlanet.centerX;
@@ -64,6 +64,9 @@ class Ship {
     ctx.fillStyle = this.gradient;
     ctx.arc(this.centerX, this.centerY, this.radius, 0, 2 * Math.PI, false);
     ctx.fill();
+  }
+  launch() {
+
   }
 }
 
@@ -86,17 +89,23 @@ const game = {
   targetPlanetCount: 5,
   planets: [],
   ships: [],
+  currentPlayer: 0,
   initialize() {
     const home = new Planet();
     this.planets.push(home);
-    home.draw() //only for debug
+    
+    let player1 = new Ship()
+    this.ships.push(player1)
+
+    let player2 = new Ship()
+    this.ships.push(player2) 
+
     this.generateTargetPlanets();
   },
   generateTargetPlanets() {
     let planetCenterArray = this.makePlanetCenterArray();
     planetCenterArray.forEach(center => {
       let planet = new Planet(center[0], center[1]);
-      planet.draw(); //only temp
       this.planets.push(planet);
     });
   },
