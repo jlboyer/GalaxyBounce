@@ -29,6 +29,7 @@ ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 class Ship {
   constructor() {
+    this.score = 0;
     this.parentPlanet = {};
     this.radius = 8;
     this.centerX = 130;
@@ -81,6 +82,9 @@ class Ship {
     }
     ctx.font = "18px sans-serif";
     ctx.fillText(`Vx: ${this.vX.toFixed(1)} Vy: ${this.vY.toFixed(1)}`, 50, 50);
+    ctx.fillText(`Player: ${game.currentPlayer + 1}`, 50, 75);
+    ctx.beginPath();
+    ctx.fillText(`Player-1 Score: ${game.ships[0].score} Player-2 Score: ${game.ships[1].score}`, 50, 100);
     ctx.beginPath();
     // this.gradient.addColorStop(0, this.colorStop1);
     // this.gradient.addColorStop(1, this.colorStop2);
@@ -118,12 +122,13 @@ class Ship {
         ) {
           this.parentPlanet = planet;
           this.orbiting = true;
+          this.score++
         }
       }
     });
   }
   outOfBounds() {
-    if (this.centerX > canvas.height || this.centerY > canvas.width ||this.centerX < 0 || this.centerY < 0) {
+    if (this.centerX > canvas.width || this.centerY > canvas.height ||this.centerX < 0 || this.centerY < 0) {
       console.log(this.centerX, this.centerY);
       game.ships[game.currentPlayer].orbiting = true;
       game.ships[game.currentPlayer].centerX = 130;
