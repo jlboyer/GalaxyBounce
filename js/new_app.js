@@ -17,9 +17,9 @@ bckgrd.addColorStop(1, 'rgba(14, 185, 247, 0.000)');
 ctx.fillStyle = bckgrd;
 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-//restore original canvas state
+//restore original canvas state and save it again
 ctx.restore()
-
+ctx.save()
 //Create effect to change color of ship by position
 ctx.globalCompositeOperation = 'exclusion'
 
@@ -54,22 +54,23 @@ class Ship {
   }
 }
 
+class Planet {
+  constructor() {
+    this.centerX = 80 //initialize with home will update for targets
+    this.centerY = 375
+    this.radius = Math.random()*20 + 10
+    this.color = 'rgba(255, 255, 255, 1)'
+  }
+  draw(){
+    ctx.beginPath()
+    ctx.arc(this.centerX,this.centerY,this.radius,0,2*Math.PI,false)
+    ctx.fillStyle = this.color;
+    ctx.fill();
+  }
+}
+
 let ship = new Ship
+let home = new Planet
+
 ship.draw()
-
-/* 
-
-// Create ship gradient
-let shipCenterX = 100
-let shipCenterY = 375
-let shipgrd = ctx.createRadialGradient(shipCenterX, shipCenterY, 0, shipCenterX, shipCenterY, 15);
-      
-// Add colors
-shipgrd.addColorStop(0.000, 'rgba(252, 224, 10, 1)');
-shipgrd.addColorStop(1.000, 'rgba(244, 33, 14, 0)');
-ctx.fillStyle = shipgrd;
-
-//Make ship
-ctx.arc(shipCenterX,shipCenterY,15,0,2*Math.PI,false)
-ctx.fill();
- */
+home.draw()
