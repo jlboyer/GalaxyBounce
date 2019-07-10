@@ -35,11 +35,12 @@ class Ship {
     this.centerY = 375;
     this.orbiting = true;
     this.orbitRadius = 45;
-    this.orbitFreq = 60; //1 per sec at 60 FPS
+    this.orbitFreq = 30; //1 per sec at 60 FPS
     this.angularVelocity = 2 * Math.PI * this.orbitFreq;
     this.rotationAngle = 0;
     this.vX = 0;
     this.vY = 0;
+    this.vAdjust = 1/20
     this.gradient = ctx.createRadialGradient(
       this.centerX,
       this.centerY,
@@ -59,8 +60,8 @@ class Ship {
   updateLinearVel(){
     let cosTheta = Math.cos(this.rotationAngle)
     let sinTheta = Math.sin(this.rotationAngle)
-    this.vX = -this.angularVelocity * sinTheta
-    this.vy = -this.angularVelocity * cosTheta
+    this.vX = -this.angularVelocity * sinTheta * this.vAdjust
+    this.vY = this.angularVelocity * cosTheta * this.vAdjust
   }
   orbit() {
     this.centerX =
@@ -75,7 +76,11 @@ class Ship {
       this.updateRotationAngle()
       this.updateLinearVel()
       this.orbit()
+    } else {
+      this.launch()
     }
+    ctx.font = '18px sans-serif'
+    ctx.fillText(`Vx: ${this.vX.toFixed(1)} Vy: ${this.vY.toFixed(1)}`,50,50)
     ctx.beginPath();
     // this.gradient.addColorStop(0, this.colorStop1);
     // this.gradient.addColorStop(1, this.colorStop2);
@@ -87,10 +92,11 @@ class Ship {
     ctx.stroke()
 
     // ctx.fill();
-    console.log(this)
+
   }
   launch() {
-
+    this.centerX += this.vX * (1/60) * game.time.getSeconds() + this.vX * (1/60000) * game.time.getMilliseconds() 
+    this.centerY += this.vY * (1/60) * game.time.getSeconds() + this.vY * (1/60000) * game.time.getMilliseconds() 
   }
 }
 
