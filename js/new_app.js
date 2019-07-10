@@ -35,9 +35,11 @@ class Ship {
     this.centerY = 375;
     this.orbiting = true;
     this.orbitRadius = 45;
-    this.orbitFreq = 40;
+    this.orbitFreq = 60; //1 per sec at 60 FPS
     this.angularVelocity = 2 * Math.PI * this.orbitFreq;
     this.rotationAngle = 0;
+    this.vX = 0;
+    this.vY = 0;
     this.gradient = ctx.createRadialGradient(
       this.centerX,
       this.centerY,
@@ -54,6 +56,12 @@ class Ship {
       this.angularVelocity * (1 / 60) * game.time.getSeconds() +
       this.angularVelocity * (1 / 60000) * game.time.getMilliseconds();
   }
+  updateLinearVel(){
+    let cosTheta = Math.cos(this.rotationAngle)
+    let sinTheta = Math.sin(this.rotationAngle)
+    this.vX = -this.angularVelocity * sinTheta
+    this.vy = -this.angularVelocity * cosTheta
+  }
   orbit() {
     this.centerX =
       this.orbitRadius * Math.cos(this.rotationAngle) +
@@ -65,6 +73,7 @@ class Ship {
   draw() {
     if (this.orbiting === true){
       this.updateRotationAngle()
+      this.updateLinearVel()
       this.orbit()
     }
     ctx.beginPath();
@@ -110,6 +119,10 @@ const game = {
   currentPlayer: 0,
   time: 0,
   initialize() {
+    document.onclick = () => {
+      game.ships[game.currentPlayer].orbiting = false
+    }
+
     const home = new Planet();
     this.planets.push(home);
     
@@ -143,7 +156,7 @@ const game = {
     while (i < this.targetPlanetCount) {
       let colIndx = Math.floor(Math.random() * cols);
       let rowIndx = Math.floor(Math.random() * rows);
-      if (activeQuadArray.indexOf([colIndx, rowIndx]) === -1 && colIndx > 3 && colIndx < cols - 1 && rowIndx > 1 && rowIndx < rows - 1) {
+      if (activeQuadArray.indexOf([colIndx, rowIndx]) === -1 && colIndx > 4 && colIndx < cols - 1 && rowIndx > 1 && rowIndx < rows - 1) {
         activeQuadArray.push([colIndx, rowIndx]);
         i++;
       }
