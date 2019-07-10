@@ -1,6 +1,6 @@
 const canvas = document.getElementById('canvas')
 const ctx = canvas.getContext('2d')
-canvas.style.cursor = 'none';
+//canvas.style.cursor = 'none';
 
 // save canvas state 
 ctx.save()
@@ -23,14 +23,41 @@ ctx.restore()
 //Create effect to change color of ship by position
 ctx.globalCompositeOperation = 'exclusion'
 
+class Ship {
+  constructor() {
+    this.parentPlanet = {};
+    this.radius = 15;
+    this.centerX = 130;
+    this.centerY = 375;
+    this.orbitRadius = 45;
+    this.orbitFreq = 1;
+    this.angularVelocity = 2 * Math.PI * this.orbitFreq
+    this.rotationAngle = 0;
+    this.gradient = ctx.createRadialGradient(shipCenterX, shipCenterY, 0, shipCenterX, shipCenterY, this.radius);
+    this.colorStop1 = "0.000, \'rgba(252, 224, 10, 1)\'"
+    this.colorStop2 = "1.000, \'rgba(244, 33, 14, 0)\'"
+  }
+  updateRotationAngle(){
+    this.rotationAngle = this.angularVelocity*((2 * Math.PI) / 60)* time.getSeconds() + this.angularVelocity*((2 * Math.PI) / 60000) * time.getMilliseconds()
+  }
+  updateCenter(){
+    this.centerX = this.orbitRadius * Math.cos(this.rotationAngle) + 500
+    this.centerY = this.orbitRadius * Math.sin(this.rotationAngle) + 375
+  }
+}
+
+
+
+
+
 // Create ship gradient
 let shipCenterX = 100
 let shipCenterY = 375
 let shipgrd = ctx.createRadialGradient(shipCenterX, shipCenterY, 0, shipCenterX, shipCenterY, 15);
       
 // Add colors
-shipgrd.addColorStop(0.000, 'rgba(252, 224, 10, 1.000)');
-shipgrd.addColorStop(1.000, 'rgba(244, 33, 14, 1.000)');
+shipgrd.addColorStop(0.000, 'rgba(252, 224, 10, 1)');
+shipgrd.addColorStop(1.000, 'rgba(244, 33, 14, 0)');
 ctx.fillStyle = shipgrd;
 
 //Make ship
