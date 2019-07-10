@@ -40,7 +40,7 @@ class Ship {
     this.rotationAngle = 0;
     this.vX = 0;
     this.vY = 0;
-    this.vAdjust = 1/13.5
+    this.vAdjust = 1 / 13.5;
     this.gradient = ctx.createRadialGradient(
       this.centerX,
       this.centerY,
@@ -57,11 +57,11 @@ class Ship {
       this.angularVelocity * (1 / 60) * game.time.getSeconds() +
       this.angularVelocity * (1 / 60000) * game.time.getMilliseconds();
   }
-  updateLinearVel(){
-    let cosTheta = Math.cos(this.rotationAngle)
-    let sinTheta = Math.sin(this.rotationAngle)
-    this.vX = -this.angularVelocity * sinTheta * this.vAdjust
-    this.vY = this.angularVelocity * cosTheta * this.vAdjust
+  updateLinearVel() {
+    let cosTheta = Math.cos(this.rotationAngle);
+    let sinTheta = Math.sin(this.rotationAngle);
+    this.vX = -this.angularVelocity * sinTheta * this.vAdjust;
+    this.vY = this.angularVelocity * cosTheta * this.vAdjust;
   }
   orbit() {
     this.centerX =
@@ -72,44 +72,64 @@ class Ship {
       this.parentPlanet.centerY;
   }
   draw() {
-    if (this.orbiting === true){
-      this.updateRotationAngle()
-      this.updateLinearVel()
-      this.orbit()
+    if (this.orbiting === true) {
+      this.updateRotationAngle();
+      this.updateLinearVel();
+      this.orbit();
     } else {
-      this.launch()
+      this.launch();
     }
-    ctx.font = '18px sans-serif'
-    ctx.fillText(`Vx: ${this.vX.toFixed(1)} Vy: ${this.vY.toFixed(1)}`,50,50)
+    ctx.font = "18px sans-serif";
+    ctx.fillText(`Vx: ${this.vX.toFixed(1)} Vy: ${this.vY.toFixed(1)}`, 50, 50);
     ctx.beginPath();
     // this.gradient.addColorStop(0, this.colorStop1);
     // this.gradient.addColorStop(1, this.colorStop2);
     // ctx.fillStyle = this.gradient;
-    
-    ctx.strokeStyle = 'white'
-    ctx.lineWidth = 2
+
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 2;
     ctx.arc(this.centerX, this.centerY, this.radius, 0, 2 * Math.PI, false);
-    ctx.stroke()
+    ctx.stroke();
 
     // ctx.fill();
-
   }
   launch() {
-    this.centerX += this.vX * (1/60) * game.time.getSeconds() + this.vX * (1/60000) * game.time.getMilliseconds() 
-    this.centerY += this.vY * (1/60) * game.time.getSeconds() + this.vY * (1/60000) * game.time.getMilliseconds() 
-    this.newOrbit()
+    this.centerX +=
+      this.vX * (1 / 60) * game.time.getSeconds() +
+      this.vX * (1 / 60000) * game.time.getMilliseconds();
+    this.centerY +=
+      this.vY * (1 / 60) * game.time.getSeconds() +
+      this.vY * (1 / 60000) * game.time.getMilliseconds();
+    this.newOrbit();
+    this.outOfBounds();
   }
-  newOrbit(){
-    game.planets.slice(1).forEach( planet => {
-      let minX = planet.centerX - this.orbitRadius
-      let maxX = planet.centerX + this.orbitRadius
-      let minY = planet.centerY - this.orbitRadius
-      let maxY = planet.centerY + this.orbitRadius
-      if (this.centerX > minX && this.centerX < maxX && this.centerY > minY && this.centerY < maxY) {
-        this.parentPlanet = planet
-        this.orbiting = true;
+  newOrbit() {
+    game.planets.slice(1).forEach(planet => {
+      if (planet !== this.parentPlanet) {
+        let minX = planet.centerX - this.orbitRadius;
+        let maxX = planet.centerX + this.orbitRadius;
+        let minY = planet.centerY - this.orbitRadius;
+        let maxY = planet.centerY + this.orbitRadius;
+        if (
+          this.centerX > minX &&
+          this.centerX < maxX &&
+          this.centerY > minY &&
+          this.centerY < maxY
+        ) {
+          this.parentPlanet = planet;
+          this.orbiting = true;
+        }
       }
-    })
+    });
+  }
+  outOfBounds() {
+    if (this.centerX > canvas.height || this.centerY > canvas.width ||this.centerX < 0 || this.centerY < 0) {
+      console.log(this.centerX, this.centerY);
+      game.ships[game.currentPlayer].orbiting = true;
+      game.ships[game.currentPlayer].centerX = 130;
+      game.ships[game.currentPlayer].centerY = 375;
+      game.currentPlayer = Math.abs(game.currentPlayer - 1);
+    }
   }
 }
 
@@ -125,20 +145,21 @@ class Planet {
     ctx.arc(this.centerX, this.centerY, this.radius, 0, 2 * Math.PI);
     ctx.fillStyle = this.color;
     ctx.fill();
-    ctx.strokeStyle = 'white'
-    ctx.lineWidth = 2
-    ctx.stroke()
-    this.drawOrbit()
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    this.drawOrbit();
   }
   drawOrbit() {
-    console.log("hi")
-    let homeX = game.planets[0].centerX
-    let homeY = game.planets[0].centerY
-    let r = Math.sqrt(Math.pow(this.centerX - homeX, 2) + Math.pow(this.centerY - homeY, 2))
-    ctx.strokeStyle = 'rgba(255,255,255,0.5)'
+    let homeX = game.planets[0].centerX;
+    let homeY = game.planets[0].centerY;
+    let r = Math.sqrt(
+      Math.pow(this.centerX - homeX, 2) + Math.pow(this.centerY - homeY, 2)
+    );
+    ctx.strokeStyle = "rgba(255,255,255,0.5)";
     ctx.beginPath();
-    ctx.arc(homeX , homeY , r, 0 , 2 *Math.PI)
-    ctx.stroke()
+    ctx.arc(homeX, homeY, r, 0, 2 * Math.PI);
+    ctx.stroke();
   }
 }
 
@@ -150,23 +171,23 @@ const game = {
   time: 0,
   initialize() {
     document.onclick = () => {
-      game.ships[game.currentPlayer].orbiting = false
-    }
+      game.ships[game.currentPlayer].orbiting = false;
+    };
 
     const home = new Planet();
     this.planets.push(home);
-    
-    let player1 = new Ship()
-    player1.parentPlanet = home
-    this.ships.push(player1)
 
-    let player2 = new Ship()
-    player1.parentPlanet = home
-    this.ships.push(player2) 
+    let player1 = new Ship();
+    player1.parentPlanet = home;
+    this.ships.push(player1);
+
+    let player2 = new Ship();
+    player2.parentPlanet = home;
+    this.ships.push(player2);
 
     this.generateTargetPlanets();
 
-    this.animate()
+    this.animate();
   },
   generateTargetPlanets() {
     let planetCenterArray = this.makePlanetCenterArray();
@@ -186,7 +207,13 @@ const game = {
     while (i < this.targetPlanetCount) {
       let colIndx = Math.floor(Math.random() * cols);
       let rowIndx = Math.floor(Math.random() * rows);
-      if (activeQuadArray.indexOf([colIndx, rowIndx]) === -1 && colIndx > 4 && colIndx < cols - 1 && rowIndx > 1 && rowIndx < rows - 1) {
+      if (
+        activeQuadArray.indexOf([colIndx, rowIndx]) === -1 &&
+        colIndx > 4 &&
+        colIndx < cols - 1 &&
+        rowIndx > 1 &&
+        rowIndx < rows - 1
+      ) {
         activeQuadArray.push([colIndx, rowIndx]);
         i++;
       }
@@ -199,10 +226,10 @@ const game = {
     return planetCenterArray;
   },
   clearCanvas() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height) 
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
   },
   animate() {
-    game.clearCanvas()
+    game.clearCanvas();
 
     //Generate gradient background --------------
     let bckgrd = ctx.createRadialGradient(110, 375, 0, 0, 375, 1200);
@@ -215,16 +242,15 @@ const game = {
 
     game.time = new Date();
 
-    game.ships[game.currentPlayer].draw()
+    game.ships[game.currentPlayer].draw();
 
     game.planets.forEach(planet => {
-      planet.draw()
-    })
+      planet.draw();
+    });
 
-    window.requestAnimationFrame(game.animate)
+    window.requestAnimationFrame(game.animate);
   }
 };
-
 
 game.initialize();
 
