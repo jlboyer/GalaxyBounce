@@ -40,7 +40,7 @@ class Ship {
     this.rotationAngle = 0;
     this.vX = 0;
     this.vY = 0;
-    this.vAdjust = 1/20
+    this.vAdjust = 1/13.5
     this.gradient = ctx.createRadialGradient(
       this.centerX,
       this.centerY,
@@ -109,11 +109,22 @@ class Planet {
   }
   draw() {
     ctx.beginPath();
-    ctx.arc(this.centerX, this.centerY, this.radius, 0, 2 * Math.PI, false);
+    ctx.arc(this.centerX, this.centerY, this.radius, 0, 2 * Math.PI);
     ctx.fillStyle = this.color;
     ctx.fill();
     ctx.strokeStyle = 'white'
     ctx.lineWidth = 2
+    ctx.stroke()
+    this.drawOrbit()
+  }
+  drawOrbit() {
+    console.log("hi")
+    let homeX = game.planets[0].centerX
+    let homeY = game.planets[0].centerY
+    let r = Math.sqrt(Math.pow(this.centerX - homeX, 2) + Math.pow(this.centerY - homeY, 2))
+    ctx.strokeStyle = 'rgba(255,255,255,0.5)'
+    ctx.beginPath();
+    ctx.arc(homeX , homeY , r, 0 , 2 *Math.PI)
     ctx.stroke()
   }
 }
