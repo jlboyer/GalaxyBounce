@@ -55,9 +55,9 @@ class Ship {
 }
 
 class Planet {
-  constructor() {
-    this.centerX = 80 //initialize with home will update for targets
-    this.centerY = 375
+  constructor(x = 80, y = 375) {
+    this.centerX = x //initialize with home will update for targets
+    this.centerY = y
     this.radius = Math.random()*20 + 10
     this.color = 'rgba(255, 255, 255, 1)'
   }
@@ -80,24 +80,37 @@ const game = {
     this.generateTargetPlanets()
   },
   generateTargetPlanets(){
-    this.makeActiveQuads()
-    for (let i = 0; i < this.targetPlanetCount ; i++){
-      let planet = new Planet
+    planetCenterArray = this.makePlanetCenterArray()
+    planetCenterArray.forEach( center =>{
+      let planet = new Planet(center[0],center[1])
+      this.planets.push(planet)
+    })
+
 
     }
   },
-    makeActiveQuads(){
-      const cols = canvas.width /  50
-      const rows = canvas.height / 50
+    makePlanetCenterArray(){
+      let quadDim = 50
+      const cols = canvas.width /  quadDim
+      const rows = canvas.height / quadDim
       let i = 0;
       let activeQuadArray = []
+      let planetCenterArray = []
+      //generate quads where target planets will originate
       while (i < this.targetPlanetCount){
         let colIndx = Math.floor(Math.random() * cols)
         let rowIndx = Math.floor(Math.random() * rows)
-        
+        if (activeQuadArray.indexOf([colIndx,rowIndx]) === -1 && colIndx > 2){
+          activeQuadArray.push([colIndx,rowIndx])
+          i++
+        }
       }
-
-
+      activeQuadArray.forEach( quad => {
+        let centerX = quad[0]*quadDim - 25
+        let centerY = quad[1]*quadDim - 25
+        planetCenterArray.push([centerX,centerY])
+      })
+      return planetCenterArray
     }
 
   }
