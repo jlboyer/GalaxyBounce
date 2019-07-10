@@ -7,22 +7,22 @@ ctx.save();
 
 // Create gradient
 
-// let bckgrd = ctx.createRadialGradient(110, 375, 0, 0, 375, 1200);
+let bckgrd = ctx.createRadialGradient(110, 375, 0, 0, 375, 1200);
 
 // Add colors
 
-// bckgrd.addColorStop(0, "rgba(255, 0, 106, 1.000)");
-// bckgrd.addColorStop(0.5, "rgba(134, 0, 252, 0.500)");
-// bckgrd.addColorStop(1, "rgba(14, 185, 247, 0.000)");
+bckgrd.addColorStop(0, "rgba(255, 0, 106, 1.000)");
+bckgrd.addColorStop(0.5, "rgba(134, 0, 252, 0.500)");
+bckgrd.addColorStop(1, "rgba(14, 185, 247, 0.000)");
 
 // Fill with gradient
 
-// ctx.fillStyle = bckgrd;
-// ctx.fillRect(0, 0, canvas.width, canvas.height);
+ctx.fillStyle = bckgrd;
+ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 //restore original canvas state and save it again
-ctx.restore();
-ctx.save();
+// ctx.restore();
+// ctx.save();
 //Create effect to change color of ship by position
 
 // ctx.globalCompositeOperation = "exclusion";
@@ -130,7 +130,7 @@ class Planet {
 }
 
 const game = {
-  targetPlanetCount: 5,
+  targetPlanetCount: 3,
   planets: [],
   ships: [],
   currentPlayer: 0,
@@ -190,6 +190,13 @@ const game = {
   },
   animate() {
     game.clearCanvas()
+
+    let bckgrd = ctx.createRadialGradient(110, 375, 0, 0, 375, 1200);
+    bckgrd.addColorStop(0, "rgba(255, 0, 106, 1.000)");
+    bckgrd.addColorStop(0.5, "rgba(134, 0, 252, 0.500)");
+    bckgrd.addColorStop(1, "rgba(14, 185, 247, 0.000)");
+    ctx.fillStyle = bckgrd;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     game.time = new Date();
 
