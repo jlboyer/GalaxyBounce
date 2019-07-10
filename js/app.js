@@ -6,15 +6,18 @@ class Attractor {
   constructor(x, y){
     this.centerX = x;
     this.centerY = y;
-    this.radius = Math.random()*10 + 10;
-    this.attractK = 10;
+    this.radius = Math.random()*20 + 10;
+    this.attractK = 1000;
     this.satellites = [];
+    this.color = 'rgba(255, 255, 255, 1)'
   } 
   draw(){
     ctx.beginPath()
     ctx.arc(this.centerX,this.centerY,this.radius,0,2*Math.PI,false)
-    ctx.strokeStyle = 'rgba(150, 150, 150, 1)';
+    ctx.strokeStyle = this.color;
     ctx.lineWidth = 2
+    ctx.fillStyle = this.color;
+    ctx.fill();
     ctx.stroke()
     this.drawSatellites()
   }
@@ -23,7 +26,7 @@ class Attractor {
       //satellite.updatePosition()
       satellite.draw()
       satellite.drawAttractVector()
-      satellite.drawTangentVector()
+      //satellite.drawTangentVector()
       satellite.drawSiblingVector(array.slice(index))
     })
   }
@@ -35,8 +38,9 @@ class Satellite {
     this.radius = 10;
     this.centerX = x;
     this.centerY = y;
-    this.velocityX = 0; //satellites spawn +x from attractor so sets in motion clockwise
-    this.velocityY = 0;
+    this.forcingAngularVelocity = 0.1*2*Math.PI*(1/60) //
+    this.velocityX = 0; 
+    this.velocityY = 0; //set an initial velocity to start orbit
     this.accelerationX = 0;
     this.accelerationY = 0;
     this.attractorVectorX = 0;
@@ -44,18 +48,18 @@ class Satellite {
     this.naturalOrbit = r;
     this.thetaRads = 0; //update based on satellite position
     this.mass = 1;
+    this.color = 'rgba(255,255,255,1)'
+    this.damping = 1;
   }
   draw(){
     this.updatePosition()
     ctx.beginPath()
     ctx.arc(this.centerX,this.centerY,this.radius,0,2*Math.PI,false)
-    ctx.strokeStyle = 'rgba(150, 150, 150, 1)';
+    ctx.strokeStyle = this.color;
     ctx.lineWidth = 2
     ctx.stroke()
   }
   drawAttractVector(){
-    // this.setAttractorVector()
-
     ctx.beginPath()
     ctx.moveTo(this.centerX,this.centerY)
 
@@ -67,8 +71,21 @@ class Satellite {
   setAttractorVector(){
     this.attractorVectorX = game.attractors[this.parentAttractorIndex].centerX - this.centerX
     this.attractorVectorY = game.attractors[this.parentAttractorIndex].centerY - this.centerY
-    this.thetaRads = Math.acos(this.attractorVectorX / Math.sqrt(Math.pow(this.attractorVectorX,2) + Math.pow(this.attractorVectorY,2)))
-    // console.log(this.thetaRads)
+
+    if (this.attractorVectorX < 0 && this.attractorVectorY > 0) {
+      // quadrant I
+      this.thetaRads = -Math.atan(this.attractorVectorY / this.attractorVectorX)
+    } else if (this.attractorVectorX > 0 && this.attractorVectorY > 0) {
+      //quadrant II
+      this.thetaRads = Math.PI - Math.atan(this.attractorVectorY / this.attractorVectorX) 
+    } else if (this.attractorVectorX > 0 && this.attractorVectorY < 0) {
+      //quadrant III
+      this.thetaRads = Math.PI - Math.atan(this.attractorVectorY / this.attractorVectorX)
+    } else if (this.attractorVectorX < 0 && this.attractorVectorY < 0){
+      //quadrant IV
+      this.thetaRads = 2*Math.PI - Math.atan(this.attractorVectorY / this.attractorVectorX)
+    }
+    // this.thetaRads += this.forcingAngularVelocity
   }
   drawTangentVector(){
     ctx.beginPath()
@@ -98,18 +115,30 @@ class Satellite {
     this.updateVelocity()
     this.centerX += this.velocityX * (1/60) // X = X0 + V * t
     this.centerY += this.velocityY * (1/60)
-
-    // let parentAttractor = game.attractors[this.parentAttractorIndex]
-    // this.centerX = parentAttractor.centerX + this.naturalOrbit
-    // this.centerY = parentAttractor.centerY
-    // //update velocity by acceleration
-
-    // //update position by velocity
   }
   updateVelocity(){
-    //if satellite is closer than natural orbit spring force is positive 
     this.velocityX -= this.accelerationX * (1/60)  //60FPS?  V = V0 + A * t
     this.velocityY -= this.accelerationY * (1/60)
+    
+    //update velocity with forcing angular velocity 
+    this.velocityX -= this.forcingAngularVelocity*this.naturalOrbit*Math.sin(this.thetaRads)
+    this.velocityY -= this.forcingAngularVelocity*this.naturalOrbit*Math.cos(this.thetaRads)
+    this.drawForcingVelocity()
+
+    // this.velocityX = 0.9*this.velocityX
+    // this.velocityY = 0.9*this.velocityY
+  }
+  drawForcingVelocity(){
+    ctx.beginPath()
+    ctx.moveTo(this.centerX,this.centerY)
+    let vectorX = -this.forcingAngularVelocity*this.naturalOrbit*Math.sin(this.thetaRads)*100
+    let vectorY = -this.forcingAngularVelocity*this.naturalOrbit*Math.cos(this.thetaRads)*100
+    ctx.lineTo(this.centerX+vectorX, this.centerY+vectorY)
+    ctx.strokeStyle = 'red';
+    ctx.lineWidth = 2
+    ctx.stroke()
+    ctx.font = '18px sans-serif'
+    ctx.fillText(`${Math.round(this.thetaRads*(180/Math.PI))}-degrees \n Forcing-Vector-X:${vectorX.toFixed(2)}, Forcing-Vector-Y:${vectorY.toFixed(2)}`,50,50)
   }
   updateAcceleration(){
     let parentAttractorK = game.attractors[this.parentAttractorIndex].attractK
@@ -119,9 +148,57 @@ class Satellite {
 
     let attractorSpringForce = parentAttractorK * (this.naturalOrbit - attractorVectorMag ) // Fspring = k*delta(x)
     
+    ctx.fillText(`${attractorSpringForce}`, 50, 150)
     this.accelerationX = (attractorSpringForce * attractorUnitVectorX) / this.mass // F = m*a 
     this.accelerationY = (attractorSpringForce * attractorUnitVectorY) / this.mass
+
+    if (this.thetaRads > 0 && this.thetaRads <= Math.PI / 2) {
+      //Quadrant I
+      this.accelerationX -= ( this.damping * this.velocityX * Math.cos(this.thetaRads)) / this.mass
+      this.accelerationY -= ( this.damping * this.velocityY * Math.sin(this.thetaRads)) / this.mass
+    } else if (this.thetaRads > Math.PI / 2 && this.thetaRads <= Math.PI) {
+      //Quadrant II
+      this.accelerationX += ( this.damping * this.velocityX * Math.cos(this.thetaRads)) / this.mass
+      this.accelerationY -= ( this.damping * this.velocityY * Math.sin(this.thetaRads)) / this.mass
+    } else if (this.thetaRads > Math.PI && this.thetaRads <= 3 * Math.PI / 2) {
+      //Quadrant III
+      this.accelerationX += ( this.damping * this.velocityX * Math.cos(this.thetaRads)) / this.mass
+      this.accelerationY += ( this.damping * this.velocityY * Math.sin(this.thetaRads)) / this.mass
+    } else if (this.thetaRads > 3 * Math.PI / 2 && this.thetaRads < 2 * Math.PI){
+      this.accelerationX -= ( this.damping * this.velocityX * Math.cos(this.thetaRads)) / this.mass
+      this.accelerationY += ( this.damping * this.velocityY * Math.sin(this.thetaRads)) / this.mass
+    }
+
+    ctx.beginPath()
+    ctx.moveTo(this.centerX,this.centerY)
+    let vectorX = this.accelerationX 
+    let vectorY = this.accelerationX 
+    ctx.lineTo(this.centerX+vectorX, this.centerY+vectorY)
+    ctx.strokeStyle = 'orange';
+    ctx.lineWidth = 2
+    ctx.stroke()
+    
+    // this.accelerationX = ((attractorSpringForce - this.damping * this.velocityX) * attractorUnitVectorX) / this.mass // F = m*a 
+    // this.accelerationX = ((attractorSpringForce - this.damping * this.velocityY) * attractorUnitVectorX) / this.mass 
+
+    //add damping to spring force only in direction of attractor
+    // this.accelerationX -= this.damping * Math.cos(this.thetaRads) * this.velocityX / this.mass
+    // this.accelerationY -= this.damping * Math.sin(this.thetaRads) * this.velocityY / this.mass
+    this.drawDamping()
   }
+  drawDamping(){
+    ctx.beginPath()
+    ctx.moveTo(this.centerX,this.centerY)
+    let vectorX = this.damping * Math.cos(this.thetaRads) * this.velocityX / this.mass
+    let vectorY = -this.damping * Math.sin(this.thetaRads) * this.velocityY / this.mass
+    ctx.lineTo(this.centerX+vectorX, this.centerY+vectorY)
+    ctx.strokeStyle = 'green';
+    ctx.lineWidth = 2
+    ctx.stroke()
+    ctx.font = '18px sans-serif'
+    ctx.fillText(`cos:${Math.cos(this.thetaRads).toFixed(1)}, sin: ${Math.sin(this.thetaRads).toFixed(1)}, vel-x:${this.velocityX.toFixed(1)}, vel-y:${this.velocityY.toFixed(1)}`,50,100)
+  }
+
 }
 
 
