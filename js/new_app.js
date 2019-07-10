@@ -97,6 +97,19 @@ class Ship {
   launch() {
     this.centerX += this.vX * (1/60) * game.time.getSeconds() + this.vX * (1/60000) * game.time.getMilliseconds() 
     this.centerY += this.vY * (1/60) * game.time.getSeconds() + this.vY * (1/60000) * game.time.getMilliseconds() 
+    this.newOrbit()
+  }
+  newOrbit(){
+    game.planets.slice(1).forEach( planet => {
+      let minX = planet.centerX - this.orbitRadius
+      let maxX = planet.centerX + this.orbitRadius
+      let minY = planet.centerY - this.orbitRadius
+      let maxY = planet.centerY + this.orbitRadius
+      if (this.centerX > minX && this.centerX < maxX && this.centerY > minY && this.centerY < maxY) {
+        this.parentPlanet = planet
+        this.orbiting = true;
+      }
+    })
   }
 }
 
@@ -191,12 +204,14 @@ const game = {
   animate() {
     game.clearCanvas()
 
+    //Generate gradient background --------------
     let bckgrd = ctx.createRadialGradient(110, 375, 0, 0, 375, 1200);
     bckgrd.addColorStop(0, "rgba(255, 0, 106, 1.000)");
     bckgrd.addColorStop(0.5, "rgba(134, 0, 252, 0.500)");
     bckgrd.addColorStop(1, "rgba(14, 185, 247, 0.000)");
     ctx.fillStyle = bckgrd;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+    //-------------------------------------------
 
     game.time = new Date();
 
