@@ -110,10 +110,10 @@ class Ship {
   newOrbit() {
     game.planets.slice(1).forEach(planet => {
       if (planet !== this.parentPlanet) {
-        let minX = planet.centerX - this.orbitRadius;
-        let maxX = planet.centerX + this.orbitRadius;
-        let minY = planet.centerY - this.orbitRadius;
-        let maxY = planet.centerY + this.orbitRadius;
+        let minX = planet.centerX - 1.5*this.orbitRadius;
+        let maxX = planet.centerX + 1.5*this.orbitRadius;
+        let minY = planet.centerY - 1.5*this.orbitRadius;
+        let maxY = planet.centerY + 1.5*this.orbitRadius;
         if (
           this.centerX > minX &&
           this.centerX < maxX &&
@@ -123,6 +123,7 @@ class Ship {
           this.parentPlanet = planet;
           this.orbiting = true;
           this.score++
+          planet.hit = true
         }
       }
     });
@@ -144,6 +145,7 @@ class Planet {
     this.centerY = y;
     this.radius = Math.random() * 20 + 10;
     this.color = "rgba(255, 255, 255, 1)";
+    this.hit = false;
   }
   draw() {
     ctx.beginPath();
@@ -180,6 +182,7 @@ const game = {
     };
 
     const home = new Planet();
+    home.hit = true
     this.planets.push(home);
 
     let player1 = new Ship();
@@ -195,21 +198,21 @@ const game = {
     this.animate();
   },
   generateTargetPlanets() {
-    let planetCenterArray = this.makePlanetCenterArray();
+    let planetCenterArray = game.makePlanetCenterArray();
     planetCenterArray.forEach(center => {
       let planet = new Planet(center[0], center[1]);
-      this.planets.push(planet);
+      game.planets.push(planet);
     });
   },
   makePlanetCenterArray() {
-    let quadDim = 50;
+    let quadDim = 100;
     const cols = canvas.width / quadDim;
     const rows = canvas.height / quadDim;
     let i = 0;
     let activeQuadArray = [];
     let planetCenterArray = [];
     //generate quads where target planets will originate
-    while (i < this.targetPlanetCount) {
+    while (i < game.targetPlanetCount) {
       let colIndx = Math.floor(Math.random() * cols);
       let rowIndx = Math.floor(Math.random() * rows);
       if (
@@ -253,7 +256,24 @@ const game = {
       planet.draw();
     });
 
+    game.newRoundCheck()
     window.requestAnimationFrame(game.animate);
+  },
+  newRoundCheck() {
+    let newRound = true
+    game.planets.forEach(planet => {
+      if (planet.hit === false) {
+        newRound = false
+      }
+    });
+    if (newRound === true) {
+      let home = game.planets[0]
+      game.ships[0].parentPlanet = home;
+      game.ships[1].parentPlanet = home;
+      game.planets = []
+      game.planets.push(home)
+      game.generateTargetPlanets()
+    }
   }
 };
 
