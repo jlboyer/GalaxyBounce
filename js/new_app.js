@@ -2,7 +2,6 @@ const canvas = document.getElementById('canvas')
 const ctx = canvas.getContext('2d')
 canvas.style.cursor = 'none';
 
-
 // Create gradient
 let grd = ctx.createRadialGradient(0, 375, 0, 0, 375, 1200)
 
