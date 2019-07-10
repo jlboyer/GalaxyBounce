@@ -6,31 +6,36 @@ const ctx = canvas.getContext("2d");
 ctx.save();
 
 // Create gradient
-let bckgrd = ctx.createRadialGradient(110, 375, 0, 0, 375, 1200);
+
+// let bckgrd = ctx.createRadialGradient(110, 375, 0, 0, 375, 1200);
 
 // Add colors
-bckgrd.addColorStop(0, "rgba(255, 0, 106, 1.000)");
-bckgrd.addColorStop(0.5, "rgba(134, 0, 252, 0.500)");
-bckgrd.addColorStop(1, "rgba(14, 185, 247, 0.000)");
+
+// bckgrd.addColorStop(0, "rgba(255, 0, 106, 1.000)");
+// bckgrd.addColorStop(0.5, "rgba(134, 0, 252, 0.500)");
+// bckgrd.addColorStop(1, "rgba(14, 185, 247, 0.000)");
 
 // Fill with gradient
-ctx.fillStyle = bckgrd;
-ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+// ctx.fillStyle = bckgrd;
+// ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 //restore original canvas state and save it again
 ctx.restore();
 ctx.save();
 //Create effect to change color of ship by position
-ctx.globalCompositeOperation = "exclusion";
+
+// ctx.globalCompositeOperation = "exclusion";
 
 class Ship {
   constructor() {
     this.parentPlanet = {};
-    this.radius = 15;
+    this.radius = 8;
     this.centerX = 130;
     this.centerY = 375;
+    this.orbiting = true;
     this.orbitRadius = 45;
-    this.orbitFreq = 20;
+    this.orbitFreq = 40;
     this.angularVelocity = 2 * Math.PI * this.orbitFreq;
     this.rotationAngle = 0;
     this.gradient = ctx.createRadialGradient(
@@ -46,8 +51,8 @@ class Ship {
   }
   updateRotationAngle() {
     this.rotationAngle =
-      this.angularVelocity * (1 / 60) * time.getSeconds() +
-      this.angularVelocity * (1 / 60000) * time.getMilliseconds();
+      this.angularVelocity * (1 / 60) * game.time.getSeconds() +
+      this.angularVelocity * (1 / 60000) * game.time.getMilliseconds();
   }
   orbit() {
     this.centerX =
@@ -58,12 +63,22 @@ class Ship {
       this.parentPlanet.centerY;
   }
   draw() {
+    if (this.orbiting === true){
+      this.updateRotationAngle()
+      this.orbit()
+    }
     ctx.beginPath();
-    this.gradient.addColorStop(0, this.colorStop1);
-    this.gradient.addColorStop(1, this.colorStop2);
-    ctx.fillStyle = this.gradient;
+    // this.gradient.addColorStop(0, this.colorStop1);
+    // this.gradient.addColorStop(1, this.colorStop2);
+    // ctx.fillStyle = this.gradient;
+    
+    ctx.strokeStyle = 'white'
+    ctx.lineWidth = 2
     ctx.arc(this.centerX, this.centerY, this.radius, 0, 2 * Math.PI, false);
-    ctx.fill();
+    ctx.stroke()
+
+    // ctx.fill();
+    console.log(this)
   }
   launch() {
 
@@ -82,6 +97,9 @@ class Planet {
     ctx.arc(this.centerX, this.centerY, this.radius, 0, 2 * Math.PI, false);
     ctx.fillStyle = this.color;
     ctx.fill();
+    ctx.strokeStyle = 'white'
+    ctx.lineWidth = 2
+    ctx.stroke()
   }
 }
 
@@ -90,17 +108,22 @@ const game = {
   planets: [],
   ships: [],
   currentPlayer: 0,
+  time: 0,
   initialize() {
     const home = new Planet();
     this.planets.push(home);
     
     let player1 = new Ship()
+    player1.parentPlanet = home
     this.ships.push(player1)
 
     let player2 = new Ship()
+    player1.parentPlanet = home
     this.ships.push(player2) 
 
     this.generateTargetPlanets();
+
+    this.animate()
   },
   generateTargetPlanets() {
     let planetCenterArray = this.makePlanetCenterArray();
@@ -131,8 +154,25 @@ const game = {
       planetCenterArray.push([centerX, centerY]);
     });
     return planetCenterArray;
+  },
+  clearCanvas() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height) 
+  },
+  animate() {
+    game.clearCanvas()
+
+    game.time = new Date();
+
+    game.ships[game.currentPlayer].draw()
+
+    game.planets.forEach(planet => {
+      planet.draw()
+    })
+
+    window.requestAnimationFrame(game.animate)
   }
 };
+
 
 game.initialize();
 
