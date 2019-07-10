@@ -69,8 +69,41 @@ class Planet {
   }
 }
 
-let ship = new Ship
-let home = new Planet
+const game = {
+  targetPlanetCount: 7,
+  planets: [],
+  ships: [],
+  initialize(){
+    const home = new Planet
+    this.planets.push(home)
 
-ship.draw()
-home.draw()
+    this.generateTargetPlanets()
+  },
+  generateTargetPlanets(){
+    this.makeActiveQuads()
+    for (let i = 0; i < this.targetPlanetCount ; i++){
+      let planet = new Planet
+
+    }
+  },
+    makeActiveQuads(){
+      const cols = canvas.width /  50
+      const rows = canvas.height / 50
+      let i = 0;
+      let activeQuadArray = []
+      while (i < this.targetPlanetCount){
+        let colIndx = Math.floor(Math.random() * cols)
+        let rowIndx = Math.floor(Math.random() * rows)
+        
+      }
+
+
+    }
+
+  }
+
+
+// let ship = new Ship
+// let home = new Planet
+// ship.draw()
+// home.draw()
