@@ -33,22 +33,31 @@ class Ship {
     this.orbitFreq = 1;
     this.angularVelocity = 2 * Math.PI * this.orbitFreq
     this.rotationAngle = 0;
-    this.gradient = ctx.createRadialGradient(shipCenterX, shipCenterY, 0, shipCenterX, shipCenterY, this.radius);
-    this.colorStop1 = "0.000, \'rgba(252, 224, 10, 1)\'"
-    this.colorStop2 = "1.000, \'rgba(244, 33, 14, 0)\'"
+    this.gradient = ctx.createRadialGradient(this.centerX, this.centerY, 0, this.centerX, this.centerY, this.radius);
+    this.colorStop1 = "rgba(252, 224, 10, 1)"
+    this.colorStop2 = "rgba(244, 33, 14, 0)"
   }
   updateRotationAngle(){
     this.rotationAngle = this.angularVelocity*((2 * Math.PI) / 60)* time.getSeconds() + this.angularVelocity*((2 * Math.PI) / 60000) * time.getMilliseconds()
   }
   updateCenter(){
-    this.centerX = this.orbitRadius * Math.cos(this.rotationAngle) + 500
-    this.centerY = this.orbitRadius * Math.sin(this.rotationAngle) + 375
+    this.centerX = this.orbitRadius * Math.cos(this.rotationAngle) + this.parentPlanet.centerX
+    this.centerY = this.orbitRadius * Math.sin(this.rotationAngle) + this.parentPlanet.centerY
+  }
+  draw(){
+    ctx.beginPath()
+    this.gradient.addColorStop(0, this.colorStop1)
+    this.gradient.addColorStop(1, this.colorStop2)
+    ctx.fillStyle = this.gradient
+    ctx.arc(this.centerX,this.centerY,this.radius,0,2*Math.PI,false)
+    ctx.fill()
   }
 }
 
+let ship = new Ship
+ship.draw()
 
-
-
+/* 
 
 // Create ship gradient
 let shipCenterX = 100
@@ -63,3 +72,4 @@ ctx.fillStyle = shipgrd;
 //Make ship
 ctx.arc(shipCenterX,shipCenterY,15,0,2*Math.PI,false)
 ctx.fill();
+ */
