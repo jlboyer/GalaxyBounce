@@ -154,13 +154,14 @@ class Planet {
     this.radius = Math.random() * 20 + 10;
     this.color = "rgba(255, 255, 255, 1)";
     this.hit = false;
-    this.orbitFreq = 2; //much slower than ship orbit
+    this.orbitFreq = 0.3; //much slower than ship orbit
     this.angularVelocity = 2 * Math.PI * this.orbitFreq;
     this.rotationAngle = 0;
     this.firstIteration = true;
     this.timerStartAngle = 0;
     this.orbitRadius = 0;
     this.startAngleToHome = 0;
+    this.orbitCount = 0;
   }
   updateRotationAngle() {
     if (this.firstIteration === true){
@@ -169,10 +170,15 @@ class Planet {
         this.angularVelocity * (1 / 60000) * game.time.getMilliseconds();
       this.firstIteration = false
     }
-    this.rotationAngle = this.angularVelocity * (1 / 60) * game.time.getSeconds() +
-    this.angularVelocity * (1 / 60000) * game.time.getMilliseconds() - this.timerStartAngle + this.startAngleToHome
+    if (this.orbitCount === 0) {
+      this.rotationAngle = this.angularVelocity * (1 / 60) * game.time.getSeconds() +
+      this.angularVelocity * (1 / 60000) * game.time.getMilliseconds() - this.timerStartAngle + this.startAngleToHome
+    } else {
+      this.rotationAngle = this.angularVelocity * (1 / 60) * game.time.getSeconds() +
+      this.angularVelocity * (1 / 60000) * game.time.getMilliseconds() - this.timerStartAngle + this.startAngleToHome
+      this.rotationAngle -= 0.5*Math.PI*this.orbitCount
+    }
 
-    console.log("Timer Start Ang:", this.timerStartAngle.toFixed(1), "Start Ang to Home:", this.startAngleToHome.toFixed(1), "Rotation Angle:", this.rotationAngle.toFixed(1))
   }
   orbit() {
     this.centerX =
@@ -181,6 +187,11 @@ class Planet {
     this.centerY =
       this.orbitRadius * Math.sin(this.rotationAngle) +
       game.planets[0].centerY; 
+    
+      //if it goes off the canvas reintroduce at top
+    if (this.centerY > canvas.height + 2*this.radius || this.centerX < 0){
+      this.orbitCount++
+    }
   }
   draw(i) {
     if (i !== 0){
@@ -238,7 +249,6 @@ const game = {
     this.animate();
   },
   generateTargetPlanets() {
-
     let i = 0;
     let radiusArray = [];
     let planetStartAngleArray = []; 
@@ -319,8 +329,3 @@ const game = {
 };
 
 game.initialize();
-
-// let ship = new Ship
-// let home = new Planet
-// ship.draw()
-// home.draw()
