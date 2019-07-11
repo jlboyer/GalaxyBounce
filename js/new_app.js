@@ -1,5 +1,5 @@
 const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+let ctx = canvas.getContext("2d");
 //canvas.style.cursor = 'none';
 
 // save canvas state
@@ -36,28 +36,19 @@ class Ship {
     this.centerX = 130;
     this.centerY = 375;
     this.orbiting = true;
+    this.clockwise = 1;
     this.orbitRadius = 45;
     this.orbitFreq = 30; //1 per sec at 60 FPS
-    this.angularVelocity = 2 * Math.PI * this.orbitFreq;
+    this.angularVelocity = this.clockwise * 2 * Math.PI * this.orbitFreq;
     this.rotationAngle = 0;
     this.vX = 0;
     this.vY = 0;
     this.vAdjust = 1 / 13.5;
-    this.gradient = ctx.createRadialGradient(
-      this.centerX,
-      this.centerY,
-      0,
-      this.centerX,
-      this.centerY,
-      this.radius
-    );
-    this.colorStop1 = "rgba(252, 224, 10, 1)";
-    this.colorStop2 = "rgba(244, 33, 14, 0)";
   }
   updateRotationAngle() {
     this.rotationAngle =
-      this.angularVelocity * (1 / 60) * game.time.getSeconds() +
-      this.angularVelocity * (1 / 60000) * game.time.getMilliseconds();
+      this.clockwise * (this.angularVelocity * (1 / 60) * game.time.getSeconds() +
+      this.angularVelocity * (1 / 60000) * game.time.getMilliseconds());
   }
   updateLinearVel() {
     let cosTheta = Math.cos(this.rotationAngle);
@@ -87,16 +78,12 @@ class Ship {
     ctx.beginPath();
     ctx.fillText(`Player-1 Score: ${game.ships[0].score} Player-2 Score: ${game.ships[1].score}`, 50, 100);
     ctx.beginPath();
-    // this.gradient.addColorStop(0, this.colorStop1);
-    // this.gradient.addColorStop(1, this.colorStop2);
-    // ctx.fillStyle = this.gradient;
 
     ctx.strokeStyle = "white";
     ctx.lineWidth = 2;
     ctx.arc(this.centerX, this.centerY, this.radius, 0, 2 * Math.PI, false);
     ctx.stroke();
 
-    // ctx.fill();
   }
   launch() {
     this.centerX +=
@@ -123,14 +110,21 @@ class Ship {
         ) {
           this.parentPlanet = planet;
           this.orbiting = true;
+          this.clockwise = this.isClockwise()
+          console.log(this.clockwise)
           this.score++
           planet.hit = true
         }
       }
     });
   }
+  isClockwise() {
+    let strikeVector = [this.parentPlanet.centerX - this.centerX , this.parentPlanet.centerY - this.centerY]
+    let crossProduct = this.vY * strikeVector[0] + this.vX * strikeVector[0]
+    return crossProduct < 0 ? 1 : -1
+  }
   outOfBounds() {
-    if (this.centerX > canvas.width || this.centerY > canvas.height ||this.centerX < 0 || this.centerY < 0) {
+    if (this.centerX > canvas.width + 2 * game.planets[0].radius || this.centerY > canvas.height + 2 * game.planets[0].radius ||this.centerX + 2 * game.planets[0].radius < 0 || this.centerY + 2 * game.planets[0].radius < 0) {
       //reset player location to starting orbit and decrement life
       game.ships[game.currentPlayer].orbiting = true;
       game.ships[game.currentPlayer].centerX = 130;
@@ -255,8 +249,8 @@ const game = {
     let planetCenterArray = [];
 
     while (i < game.targetPlanetCount){
-      let radius = Math.random() * 0.8 * ( canvas.width - game.planets[0].centerX) + 50
-      radius = Math.round(radius/50)*50 //round to nearest 50th
+      let radius = Math.random() * 0.8 * ( canvas.width - game.planets[0].centerX) + 100
+      radius = Math.round(radius/100)*100 //round to nearest 50th
       if (radiusArray.indexOf(radius) === -1){
         radiusArray.push(radius)
         i++
