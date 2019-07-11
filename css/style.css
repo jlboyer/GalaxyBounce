@@ -1,14 +1,40 @@
+@import url('https://fonts.googleapis.com/css?family=Exo+2|Orbitron&display=swap');
+
 body{
-  background-color: black;
+  /* background-color: black; */
+  background: black;
   margin: 0;
   box-sizing: border-box;
 }
-
 
 canvas{
   padding-left: 0;
   padding-right: 0;
   margin:auto;
   display: block;
-  background-color: black;
+  background-color: transparent;
+  mix-blend-mode: hard-light
 }
+
+div{
+  background-color: transparent;
+}
+
+#header{
+ 
+}
+
+#game-title{
+  width: 100%;
+  height: 100px;
+  z-index: -1;
+  position: absolute;
+  top:0px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 60px;
+  color: transparent;
+  margin: 20px;
+  -webkit-text-stroke-width: 2px;
+  -webkit-text-stroke-color: white;
+}
+
