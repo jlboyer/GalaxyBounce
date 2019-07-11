@@ -29,6 +29,7 @@ ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 class Ship {
   constructor() {
+    this.lives = 5;
     this.score = 0;
     this.parentPlanet = {};
     this.radius = 8;
@@ -130,9 +131,11 @@ class Ship {
   }
   outOfBounds() {
     if (this.centerX > canvas.width || this.centerY > canvas.height ||this.centerX < 0 || this.centerY < 0) {
+      //reset player location to starting orbit and decrement life
       game.ships[game.currentPlayer].orbiting = true;
       game.ships[game.currentPlayer].centerX = 130;
       game.ships[game.currentPlayer].centerY = 375;
+      game.ships[game.currentPlayer].lives -= 1;
       game.currentPlayer = Math.abs(game.currentPlayer - 1);
       game.planets.forEach( planet => {
         planet.centerX = planet.initialCenterX
@@ -151,27 +154,41 @@ class Planet {
     this.radius = Math.random() * 20 + 10;
     this.color = "rgba(255, 255, 255, 1)";
     this.hit = false;
-    this.orbitFreq = 1; //1 per sec at 60 FPS
+    this.orbitFreq = 1; //much slower than ship orbit
     this.angularVelocity = 2 * Math.PI * this.orbitFreq;
     this.rotationAngle = 0;
+    this.firstIteration = true;
+    this.rotationAngleOffset = 0;
     this.orbitRadius = 0;
+    this.initialRotationAngle = 0;
   }
   updateRotationAngle() {
-    this.rotationAngle =
-      this.angularVelocity * (1 / 60) * game.time.getSeconds() +
-      this.angularVelocity * (1 / 60000) * game.time.getMilliseconds();
+    if (this.firstIteration === true){
+      this.initialRotationAngle = Math.acos((this.initialCenterX - game.planets[0].centerX)/this.orbitRadius)
+      let timerRotationAngle =
+        this.angularVelocity * (1 / 60) * game.time.getSeconds() +
+        this.angularVelocity * (1 / 60000) * game.time.getMilliseconds();
+      this.rotationAngleOffset = this.initialRotationAngle - timerRotationAngle
+      // console.log('initialRotation',game.planets[0].centerX,'timerangle',timerRotationAngle)
+      // this.firstIteration = false
+    }
+    this.rotationAngle = this.angularVelocity * (1 / 60) * game.time.getSeconds() +
+    this.angularVelocity * (1 / 60000) * game.time.getMilliseconds() - this.rotationAngleOffset
   }
   orbit() {
-    this.centerX =
-      this.orbitRadius * Math.cos(this.rotationAngle) +
-      game.planets[0].centerX; 
-    this.centerY =
-      this.orbitRadius * Math.sin(this.rotationAngle) +
-      game.planets[0].centerY; 
+    // this.centerX =
+    //   this.orbitRadius * Math.cos(this.rotationAngle) +
+    //   game.planets[0].centerX; 
+    // this.centerY =
+    //   this.orbitRadius * Math.sin(this.rotationAngle) +
+    //   game.planets[0].centerY; 
+
+    // console.log(this.rotationAngle)
   }
   draw() {
-    this.updateRotationAngle();
     this.drawOrbit();
+    this.updateRotationAngle();
+    
     this.orbit();
 
     ctx.beginPath();
@@ -230,7 +247,7 @@ const game = {
     });
   },
   makePlanetCenterArray() {
-    let quadDim = 100;
+    let quadDim = 87.5;
     const cols = canvas.width / quadDim;
     const rows = canvas.height / quadDim;
     let i = 0;
@@ -249,11 +266,11 @@ const game = {
       ) {
         activeQuadArray.push([colIndx, rowIndx]);
         i++;
-      }
+      } 
     }
     activeQuadArray.forEach(quad => {
-      let centerX = quad[0] * quadDim - 25;
-      let centerY = quad[1] * quadDim - 25;
+      let centerX = quad[0] * quadDim - 43.75;
+      let centerY = quad[1] * quadDim - 43.75;
       planetCenterArray.push([centerX, centerY]);
     });
     return planetCenterArray;
@@ -281,8 +298,17 @@ const game = {
       planet.draw();
     });
 
+    game.overCheck()
     game.newRoundCheck()
     window.requestAnimationFrame(game.animate);
+  },
+  overCheck(){
+    if (game.ships[0].lives === 0 || game.ships[1].lives === 0) {
+      console.log("game over")
+      ctx = null
+      return 
+      //prompt for new game
+    }
   },
   newRoundCheck() {
     let newRound = true
