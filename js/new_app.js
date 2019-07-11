@@ -110,7 +110,7 @@ class Ship {
         ) {
           this.parentPlanet = planet;
           this.orbiting = true;
-          this.clockwise = this.isClockwise()
+          //this.clockwise = this.isClockwise()
           console.log(this.clockwise)
           this.score++
           planet.hit = true
@@ -148,7 +148,7 @@ class Planet {
     this.radius = Math.random() * 20 + 10;
     this.color = "rgba(255, 255, 255, 1)";
     this.hit = false;
-    this.orbitFreq = 0.3; //much slower than ship orbit
+    this.orbitFreq = 10; //much slower than ship orbit
     this.angularVelocity = 2 * Math.PI * this.orbitFreq;
     this.rotationAngle = 0;
     this.firstIteration = true;
@@ -167,11 +167,14 @@ class Planet {
     if (this.orbitCount === 0) {
       this.rotationAngle = this.angularVelocity * (1 / 60) * game.time.getSeconds() +
       this.angularVelocity * (1 / 60000) * game.time.getMilliseconds() - this.timerStartAngle + this.startAngleToHome
-    } else {
-      this.rotationAngle = this.angularVelocity * (1 / 60) * game.time.getSeconds() +
-      this.angularVelocity * (1 / 60000) * game.time.getMilliseconds() - this.timerStartAngle + this.startAngleToHome
-      this.rotationAngle -= 0.5*Math.PI*this.orbitCount
-    }
+    } 
+    else {
+        this.rotationAngle = this.angularVelocity * (1 / 60) * game.time.getSeconds() +
+        this.angularVelocity * (1 / 60000) * game.time.getMilliseconds() - this.timerStartAngle + this.startAngleToHome
+        this.rotationAngle = 2*Math.PI*this.orbitCount - this.rotationAngle
+       
+      }
+      ctx.fillText(`Rotation Angle: ${game.planets[2].rotationAngle}`,50,200)
 
   }
   orbit() {
@@ -183,17 +186,18 @@ class Planet {
       game.planets[0].centerY; 
     
       //if it goes off the canvas reintroduce at top
-    if (this.centerY > canvas.height + 2*this.radius || this.centerX < 0){
+    if (this.centerY > canvas.height + 2*this.radius || this.centerX + 2*this.radius< 0){
       this.orbitCount++
     }
   }
   draw(i) {
-    if (i !== 0){
-      this.drawOrbit();
-      this.updateRotationAngle();
-      this.orbit();
-    }
-
+    // if (i !== 0){
+    //   this.drawOrbit();
+    //   this.updateRotationAngle();
+    //   this.orbit();
+    // }
+    this.drawOrbit();
+    
     ctx.beginPath();
     ctx.arc(this.centerX, this.centerY, this.radius, 0, 2 * Math.PI);
     ctx.fillStyle = this.color;
