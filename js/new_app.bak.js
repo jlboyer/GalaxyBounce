@@ -241,7 +241,12 @@ const game = {
     let planetCenterArray = game.makePlanetCenterArray();
     planetCenterArray.forEach(center => {
       let planet = new Planet(center[0], center[1]);
-
+      //assign start rotation angle 
+      let distToHomeX = center[0] - game.planets[0].centerX
+      let distToHomeY = -1 * (center[1] - game.planets[0].centerY) //y-coord flip
+      let startAngleToHome = Math.atan(distToHomeX/(distToHomeY))
+      startAngleToHome = startAngleToHome < 0 ? 0.5*Math.PI + startAngleToHome : startAngleToHome
+      //planet.startAngleToHome = startAngleToHome
       planet.startAngleToHome = -0.5+(Math.random()*0.5)
       game.planets.push(planet);
     });
@@ -253,10 +258,6 @@ const game = {
     let i = 0;
     let activeQuadArray = [];
     let planetCenterArray = [];
-
-    while 
-
-
     //generate quads where target planets will originate
     while (i < game.targetPlanetCount) {
       let colIndx = Math.floor(Math.random() * cols);
