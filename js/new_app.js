@@ -211,7 +211,7 @@ class Planet {
 }
 
 const game = {
-  targetPlanetCount: 3,
+  targetPlanetCount: 5,
   planets: [],
   ships: [],
   currentPlayer: 0,
@@ -238,46 +238,32 @@ const game = {
     this.animate();
   },
   generateTargetPlanets() {
-    let planetCenterArray = game.makePlanetCenterArray();
-    planetCenterArray.forEach(center => {
-      let planet = new Planet(center[0], center[1]);
 
-      planet.startAngleToHome = -0.5+(Math.random()*0.5)
-      game.planets.push(planet);
-    });
-  },
-  makePlanetCenterArray() {
-    let quadDim = 87.5;
-    const cols = canvas.width / quadDim;
-    const rows = canvas.height / quadDim;
     let i = 0;
-    let activeQuadArray = [];
+    let radiusArray = [];
+    let planetStartAngleArray = []; 
     let planetCenterArray = [];
 
-    while 
-
-
-    //generate quads where target planets will originate
-    while (i < game.targetPlanetCount) {
-      let colIndx = Math.floor(Math.random() * cols);
-      let rowIndx = Math.floor(Math.random() * rows);
-      if (
-        activeQuadArray.indexOf([colIndx, rowIndx]) === -1 &&
-        colIndx > 4 &&
-        colIndx < cols - 1 &&
-        rowIndx > 1 &&
-        rowIndx < rows - 1
-      ) {
-        activeQuadArray.push([colIndx, rowIndx]);
-        i++;
-      } 
+    while (i < game.targetPlanetCount){
+      let radius = Math.random() * 0.8 * ( canvas.width - game.planets[0].centerX) + 50
+      radius = Math.round(radius/50)*50 //round to nearest 50th
+      if (radiusArray.indexOf(radius) === -1){
+        radiusArray.push(radius)
+        i++
+      }
     }
-    activeQuadArray.forEach(quad => {
-      let centerX = quad[0] * quadDim - 43.75;
-      let centerY = quad[1] * quadDim - 43.75;
-      planetCenterArray.push([centerX, centerY]);
-    });
-    return planetCenterArray;
+    radiusArray.forEach(radius => {
+      let startAngleToHome = -0.5+(Math.random()*0.5)
+      let centerX = radius*Math.cos(startAngleToHome) + game.planets[0].centerX
+      let centerY = radius*Math.sin(startAngleToHome) + game.planets[0].centerY
+      planetStartAngleArray.push(startAngleToHome)
+      planetCenterArray.push([centerX,centerY])
+    })
+    planetCenterArray.forEach( (center , i ) => {
+      let planet = new Planet(center[0], center[1]);
+      planet.startAngleToHome = planetStartAngleArray[i]
+      game.planets.push(planet)
+    })
   },
   clearCanvas() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
