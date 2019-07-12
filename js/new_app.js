@@ -115,6 +115,7 @@ class Ship {
           //this.clockwise = this.isClockwise()
           console.log(this.clockwise)
           this.score++
+          $(`#player${game.currentPlayer+1}-orbs`).toggleClass("pulse")
           planet.hit = true
         }
       }
@@ -329,6 +330,7 @@ const game = {
       }
     });
     if (newRound === true) {
+      $("#game-title").toggleClass("numpulse")
       let home = game.planets[0]
       game.ships[0].parentPlanet = home;
       game.ships[1].parentPlanet = home;

@@ -20,6 +20,12 @@ canvas{
 
 div{
   background-color: transparent;
+  text-shadow:
+  -0.2px -0.2px 1px rgb(200, 223, 255,0.7),
+  0.2px 0.2px 1px rgb(200, 223, 255,0.7),
+  0 0 5px #5499F7,
+  0 0 8px #5499F7,
+  0 0 15px #5499F7;
 }
 
 #header{
@@ -90,6 +96,12 @@ div{
   color:white;
 }
 
+.pulse{
+  animation: pulse 2s;
+}
+
+
+
 #overlay{
   position: fixed;
   display: none;
@@ -132,8 +144,9 @@ div{
   0 0 5px #5499F7,
   0 0 8px #5499F7,
   0 0 15px #5499F7;
-  animation: pulse 5s infinite;
 }
+
+
 
 @keyframes pulse {
   0%, 100%  {filter: brightness(none); }
