@@ -4,6 +4,8 @@ body{
   /* background-color: black; */
   background: black;
   margin: 0;
+  border:0;
+  padding:0;
   box-sizing: border-box;
 }
 
@@ -21,15 +23,33 @@ div{
 }
 
 #header{
- 
-}
-
-#game-title{
   width: 100%;
   height: 100px;
   z-index: -1;
   position: absolute;
+  background-color:rgba(0,0,0,0.9);
   top:0px;
+  display:grid;
+  grid-template-columns: repeat(6, 7fr);
+  grid-template-rows: 1fr;
+  grid-template-areas:
+    "title title title player-stats player-stats player-stats player-stats"
+    "title title title player-stats player-stats player-stats player-stats"
+}
+
+#player-stats{
+  width:800px;
+  height:100px;
+  grid-area: player-stats;
+  display:flex;
+  flex-direction: row;
+  transform: translate(0,15px);
+}
+
+#game-title{
+  grid-area: title;
+  width: 550px;
+  height: 100px;
   font-family: 'Orbitron', sans-serif;
   font-size: 60px;
   color: transparent;
@@ -38,3 +58,34 @@ div{
   -webkit-text-stroke-color: white;
 }
 
+.player-stats{
+  display: flex;
+  font-size: 24px;
+  font-family: 'Exo 2 Light', sans-serif;
+  color:white;
+}
+
+#player1{
+  width:350px;
+  grid-area: player1;
+}
+#player2{
+  width:350px;
+  grid-area: player2;
+
+} 
+
+
+.player-name{
+  font-size: 30px;
+  font-family: 'Exo 2', sans-serif;
+  color:white;
+}
+
+
+.num{
+  font-size: 24px;
+  font-weight: 700;
+  font-family: 'Exo 2 Medium', sans-serif;
+  color:white;
+}
