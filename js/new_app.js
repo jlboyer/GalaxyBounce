@@ -116,6 +116,8 @@ class Planet {
     this.centerY = y;
     this.initialCenterX = x
     this.initialCenterY = y
+    this.entryCenterX = x
+    this.entryCenterY = 0
     this.radius = Math.random() * 20 + 10;
     this.color = "rgba(255, 255, 255, 1)";
     this.hit = false;
@@ -124,20 +126,28 @@ class Planet {
     this.rotationAngle = 0;
     this.firstIteration = true;
     this.timerStartAngle = 0;
+    this.startSeconds = 0;
+    this.startMilliseconds = 0;
     this.orbitRadius = 0;
     this.startAngleToHome = 0;
     this.orbitCount = 0;
   }
   updateRotationAngle() {
     // if (this.firstIteration === true){
+    //   this.startSeconds = game.time.getSeconds()
+    //   this.startMilliseconds = game.time.getMilliseconds()
+    //   this.firstIteration = false
+    // }
+    
+    this.rotationAngle = this.angularVelocity * ( (1 / 60) * game.time.getSeconds() + (1 / 60000) * game.time.getMilliseconds() )
 
-      // this.timerStartAngle =
-      // this.angularVelocity * (1 / 60) * game.time.getSeconds() +
-      // this.angularVelocity * (1 / 60000) * game.time.getMilliseconds();
-      // this.firstIteration = false
 
-      this.rotationAngle = this.angularVelocity * (1 / 60) * game.time.getSeconds() +
-      this.angularVelocity * (1 / 60000) * game.time.getMilliseconds() - this.timerStartAngle + this.startAngleToHome
+
+
+
+      
+
+
       console.log(this.rotationAngle)
     
 
@@ -166,14 +176,18 @@ class Planet {
       //if it goes off the canvas reintroduce at top
     if (this.centerY > canvas.height + 2*this.radius || this.centerX + 2*this.radius< 0){
       this.orbitCount++
+      this.calcRewindTime()
     }
+  }
+  calcRewindTime() {
+   // let currentSeconds = 
   }
   draw(i) {
     this.drawOrbit();
-    if (i !== 0){
-      this.updateRotationAngle();
-      this.orbit();
-    }
+    // if (i !== 0){
+    //   this.updateRotationAngle();
+    //   this.orbit();
+    // }
     
     
     game.ctx.beginPath();
@@ -187,9 +201,6 @@ class Planet {
   drawOrbit() {
     let homeX = game.planets[0].centerX;
     let homeY = game.planets[0].centerY;
-    this.orbitRadius = Math.sqrt(
-      Math.pow(this.initialCenterX - homeX, 2) + Math.pow(this.initialCenterY - homeY, 2)
-    );
     game.ctx.strokeStyle = "rgba(255,255,255,0.5)";
     game.ctx.beginPath();
     game.ctx.arc(homeX, homeY, this.orbitRadius, 0, 2 * Math.PI);
@@ -236,10 +247,11 @@ const game = {
     let planetStartAngleArray = []; 
     let planetCenterArray = [];
 
-    while (i < game.targetPlanetCount){
+    while (i <= game.targetPlanetCount){
       let radius = Math.random() * 0.8 * ( canvas.width - game.planets[0].centerX) + 200
       radius = Math.round(radius/200)*200 //round to nearest 200th
       if (radiusArray.indexOf(radius) === -1){
+        console.log(radius)
         radiusArray.push(radius)
         i++
       }
@@ -253,24 +265,30 @@ const game = {
         centerX = Math.pow(radius,2)/(Math.pow(this.planets[0].centerX,2)+Math.pow(this.planets[0].centerY,2))
         centerY = 0
       }
+      
       planetStartAngleArray.push(startAngleToHome)
       planetCenterArray.push([centerX,centerY])
     })
     planetCenterArray.forEach( (center , i ) => {
       let planet = new Planet(center[0], center[1]);
       planet.startAngleToHome = planetStartAngleArray[i]
+      planet.entryCenterX = Math.pow(radiusArray[i],2)/(Math.pow(this.planets[0].centerX,2)+Math.pow(this.planets[0].centerY,2))
+      planet.orbitRadius = radiusArray[i]
       game.planets.push(planet)
     })
   },
   clearCanvas() {
     game.ctx.clearRect(0, 0, canvas.width, canvas.height);
+    game.ctx.fillStyle = 'rgba(1, 1, 1, 0.2)';
+    game.ctx.fillRect(0, 0, canvas.width, canvas.height);
+
   },
   animate() {
     game.clearCanvas();
 
     //Generate gradient background --------------
     let bckgrd = game.ctx.createRadialGradient(110, 375, 0, 0, 375, 1200);
-    bckgrd.addColorStop(0, "rgba(255, 0, 106, 1.000)");
+    bckgrd.addColorStop(0, "rgba(255, 0, 106, 0.800)");
     bckgrd.addColorStop(0.5, "rgba(134, 0, 252, 0.500)");
     bckgrd.addColorStop(1, "rgba(14, 185, 247, 0.000)");
     game.ctx.fillStyle = bckgrd;
@@ -314,9 +332,7 @@ const game = {
           game.ctx = canvas.getContext("2d");
           $('#overlay').css("display", "none");
           game.initialize() 
-
         }
-
       })
     }
   },
