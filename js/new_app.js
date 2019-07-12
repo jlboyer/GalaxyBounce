@@ -10,7 +10,7 @@ class Ship {
     this.clockwise = 1;
     this.orbitRadius = 45;
     this.orbitFreq = 30; //1 per sec at 60 FPS
-    this.angularVelocity = this.clockwise * 2 * Math.PI * this.orbitFreq;
+    this.angularVelocity =  2 * Math.PI * this.orbitFreq;
     this.rotationAngle = 0;
     this.vX = 0;
     this.vY = 0;
@@ -18,7 +18,7 @@ class Ship {
   }
   updateRotationAngle() {
     this.rotationAngle =
-      this.clockwise * (this.angularVelocity * (1 / 60) * game.time.getSeconds() +
+      (this.angularVelocity * (1 / 60) * game.time.getSeconds() +
       this.angularVelocity * (1 / 60000) * game.time.getMilliseconds());
   }
   updateLinearVel() {
@@ -83,7 +83,7 @@ class Ship {
         ) {
           this.parentPlanet = planet;
           this.orbiting = true;
-          //this.clockwise = this.isClockwise()
+          this.clockwise = this.isClockwise()
           console.log(this.clockwise)
           this.score++
           $(`#player${game.currentPlayer+1}-orbs`).toggleClass("pulse")
@@ -94,8 +94,14 @@ class Ship {
   }
   isClockwise() {
     let strikeVector = [this.parentPlanet.centerX - this.centerX , this.parentPlanet.centerY - this.centerY]
-    let crossProduct = this.vY * strikeVector[0] + this.vX * strikeVector[0]
-    return crossProduct < 0 ? 1 : -1
+
+    let crossProduct = this.vY * strikeVector[0] + this.vX * strikeVector[1]
+    if (crossProduct > 0) {
+      return 1
+    } else {
+      this.angularVelocity =  -1 * 2 * Math.PI * this.orbitFreq;
+      return -1
+    }
   }
   outOfBounds() {
     if (this.centerX > canvas.width + 2 * game.planets[0].radius || this.centerY > canvas.height + 2 * game.planets[0].radius ||this.centerX + 2 * game.planets[0].radius < 0 || this.centerY + 2 * game.planets[0].radius < 0) {

@@ -15,7 +15,7 @@ canvas{
   margin:auto;
   display: block;
   background-color: transparent;
-  mix-blend-mode: hard-light
+  mix-blend-mode: soft-light
 }
 
 div{
@@ -33,7 +33,7 @@ div{
   height: 100px;
   z-index: -1;
   position: absolute;
-  background-color:rgba(0,0,0,0.9);
+  background-color:rgba(71, 57, 85, 0.9);
   top:0px;
   display:grid;
   grid-template-columns: repeat(6, 7fr);
@@ -61,7 +61,7 @@ div{
   color: transparent;
   margin: 20px;
   -webkit-text-stroke-width: 2px;
-  -webkit-text-stroke-color: white;
+  -webkit-text-stroke-color: rgb(255, 255, 255);
 }
 
 .player-stats{
