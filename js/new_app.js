@@ -72,11 +72,13 @@ class Ship {
     } else {
       this.launch();
     }
-    ctx.font = "18px sans-serif";
+
+
+    /* ctx.font = "18px sans-serif";
     ctx.fillText(`Vx: ${this.vX.toFixed(1)} Vy: ${this.vY.toFixed(1)}`, 50, 50);
     ctx.fillText(`Player: ${game.currentPlayer + 1}`, 50, 75);
     ctx.beginPath();
-    ctx.fillText(`Player-1 Score: ${game.ships[0].score} Player-2 Score: ${game.ships[1].score}`, 50, 100);
+    ctx.fillText(`Player-1 Score: ${game.ships[0].score} Player-2 Score: ${game.ships[1].score}`, 50, 100); */
     ctx.beginPath();
 
     ctx.strokeStyle = "white";
@@ -296,14 +298,20 @@ const game = {
       planet.draw(i);
     });
 
+    game.displayScoreboard()
     game.overCheck()
     game.newRoundCheck()
     window.requestAnimationFrame(game.animate);
   },
+  displayScoreboard(){
+    $("#player1-sats").text(game.ships[0].lives.toString(10).padStart(2,"0"));
+    $("#player1-orbs").text(game.ships[0].score.toString(10).padStart(2,"0"))
+    $("#player2-sats").text(game.ships[1].lives.toString(10).padStart(2,"0"))
+    $("#player2-orbs").text(game.ships[1].score.toString(10).padStart(2,"0"))
+  },
   overCheck(){
     if (game.ships[0].lives === 0 || game.ships[1].lives === 0) {
       console.log("game over")
-      ctx = null
       return 
       //prompt for new game
     }
