@@ -9,7 +9,7 @@ class Ship {
     this.orbiting = true;
     this.clockwise = 1;
     this.orbitRadius = 45;
-    this.orbitFreq = 30; //1 per sec at 60 FPS
+    this.orbitFreq = 30;
     this.angularVelocity =  2 * Math.PI * this.orbitFreq;
     this.rotationAngle = 0;
     this.vX = 0;
@@ -44,12 +44,6 @@ class Ship {
       this.launch();
     }
 
-
-    /* ctx.font = "18px sans-serif";
-    ctx.fillText(`Vx: ${this.vX.toFixed(1)} Vy: ${this.vY.toFixed(1)}`, 50, 50);
-    ctx.fillText(`Player: ${game.currentPlayer + 1}`, 50, 75);
-    ctx.beginPath();
-    ctx.fillText(`Player-1 Score: ${game.ships[0].score} Player-2 Score: ${game.ships[1].score}`, 50, 100); */
     game.ctx.beginPath();
 
     game.ctx.strokeStyle = "white";
@@ -84,7 +78,6 @@ class Ship {
           this.parentPlanet = planet;
           this.orbiting = true;
           this.clockwise = this.isClockwise()
-          console.log(this.clockwise)
           this.score++
           $(`#player${game.currentPlayer+1}-orbs`).toggleClass("pulse")
           planet.hit = true
@@ -140,22 +133,28 @@ class Planet {
   }
   updateRotationAngle() {
     if (this.firstIteration === true){
+      console.log(this.firstIteration)
       this.timerStartAngle =
         this.angularVelocity * (1 / 60) * game.time.getSeconds() +
         this.angularVelocity * (1 / 60000) * game.time.getMilliseconds();
       this.firstIteration = false
-    }
-    if (this.orbitCount === 0) {
+
       this.rotationAngle = this.angularVelocity * (1 / 60) * game.time.getSeconds() +
       this.angularVelocity * (1 / 60000) * game.time.getMilliseconds() - this.timerStartAngle + this.startAngleToHome
-    } 
-    else {
-        this.rotationAngle = this.angularVelocity * (1 / 60) * game.time.getSeconds() +
-        this.angularVelocity * (1 / 60000) * game.time.getMilliseconds() - this.timerStartAngle + this.startAngleToHome
-        this.rotationAngle = 2*Math.PI*this.orbitCount - this.rotationAngle
+      console.log(this.rotationAngle)
+    }
+    // if (this.orbitCount === 0) {
+    //   this.rotationAngle = this.angularVelocity * (1 / 60) * game.time.getSeconds() +
+    //   this.angularVelocity * (1 / 60000) * game.time.getMilliseconds() - this.timerStartAngle + this.startAngleToHome
+    //   console.log(this.rotationAngle)
+    // } 
+    // else {
+    //     this.rotationAngle = this.angularVelocity * (1 / 60) * game.time.getSeconds() +
+    //     this.angularVelocity * (1 / 60000) * game.time.getMilliseconds() - this.timerStartAngle + this.startAngleToHome
+    //     this.rotationAngle = 2*Math.PI*this.orbitCount - this.rotationAngle
        
-      }
-      game.ctx.fillText(`Rotation Angle: ${game.planets[2].rotationAngle}`,50,200)
+    //   }
+    //   game.ctx.fillText(`Rotation Angle: ${game.planets[2].rotationAngle}`,50,200)
 
   }
   orbit() {
@@ -174,10 +173,11 @@ class Planet {
   draw(i) {
     // if (i !== 0){
     //   this.drawOrbit();
-    //   this.updateRotationAngle();
+      this.updateRotationAngle();
     //   this.orbit();
     // }
     this.drawOrbit();
+    
     
     game.ctx.beginPath();
     game.ctx.arc(this.centerX, this.centerY, this.radius, 0, 2 * Math.PI);
@@ -240,17 +240,22 @@ const game = {
     let planetCenterArray = [];
 
     while (i < game.targetPlanetCount){
-      let radius = Math.random() * 0.8 * ( canvas.width - game.planets[0].centerX) + 100
-      radius = Math.round(radius/100)*100 //round to nearest 50th
+      let radius = Math.random() * 0.8 * ( canvas.width - game.planets[0].centerX) + 200
+      radius = Math.round(radius/200)*200 //round to nearest 200th
       if (radiusArray.indexOf(radius) === -1){
         radiusArray.push(radius)
         i++
       }
     }
     radiusArray.forEach(radius => {
-      let startAngleToHome = -0.5+(Math.random()*0.5)
+      let startAngleToHome = -0.5+(Math.random())
       let centerX = radius*Math.cos(startAngleToHome) + game.planets[0].centerX
       let centerY = radius*Math.sin(startAngleToHome) + game.planets[0].centerY
+      //if the above condition spawns a planet off board, move to top edge
+      if (centerY < 0 || centerY > this.canvas.height) {
+        centerX = Math.pow(radius,2)/(Math.pow(this.planets[0].centerX,2)+Math.pow(this.planets[0].centerY,2))
+        centerY = 0
+      }
       planetStartAngleArray.push(startAngleToHome)
       planetCenterArray.push([centerX,centerY])
     })
