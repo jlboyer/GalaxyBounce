@@ -133,6 +133,7 @@ div{
 #instructions-text{
   font-family: 'Orbitron', sans-serif;
   font-size: 50px;
+  text-align: center;
   transform: translateY(calc(50vh - 100px));
   color: rgba(255,255,255,0.7);
   text-shadow:
