@@ -311,9 +311,14 @@ const game = {
   },
   overCheck(){
     if (game.ships[0].lives === 0 || game.ships[1].lives === 0) {
-      console.log("game over")
-      return 
-      //prompt for new game
+      
+      $('#overlay').css("display", "block");
+      $('#overlay').on("click", () => {
+        if ($('#overlay').css("display") === "block"){
+          game.initialize() 
+        }
+
+      })
     }
   },
   newRoundCheck() {
