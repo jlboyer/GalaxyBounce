@@ -1,32 +1,3 @@
-const canvas = document.getElementById("canvas");
-let ctx = canvas.getContext("2d");
-//canvas.style.cursor = 'none';
-
-// save canvas state
-ctx.save();
-
-// Create gradient
-
-let bckgrd = ctx.createRadialGradient(110, 375, 0, 0, 375, 1200);
-
-// Add colors
-
-bckgrd.addColorStop(0, "rgba(255, 0, 106, 1.000)");
-bckgrd.addColorStop(0.5, "rgba(134, 0, 252, 0.500)");
-bckgrd.addColorStop(1, "rgba(14, 185, 247, 0.000)");
-
-// Fill with gradient
-
-ctx.fillStyle = bckgrd;
-ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-//restore original canvas state and save it again
-// ctx.restore();
-// ctx.save();
-//Create effect to change color of ship by position
-
-// ctx.globalCompositeOperation = "exclusion";
-
 class Ship {
   constructor() {
     this.lives = 5;
@@ -79,12 +50,12 @@ class Ship {
     ctx.fillText(`Player: ${game.currentPlayer + 1}`, 50, 75);
     ctx.beginPath();
     ctx.fillText(`Player-1 Score: ${game.ships[0].score} Player-2 Score: ${game.ships[1].score}`, 50, 100); */
-    ctx.beginPath();
+    game.ctx.beginPath();
 
-    ctx.strokeStyle = "white";
-    ctx.lineWidth = 2;
-    ctx.arc(this.centerX, this.centerY, this.radius, 0, 2 * Math.PI, false);
-    ctx.stroke();
+    game.ctx.strokeStyle = "white";
+    game.ctx.lineWidth = 2;
+    game.ctx.arc(this.centerX, this.centerY, this.radius, 0, 2 * Math.PI, false);
+    game.ctx.stroke();
 
   }
   launch() {
@@ -134,6 +105,7 @@ class Ship {
       game.ships[game.currentPlayer].centerY = 375;
       game.ships[game.currentPlayer].lives -= 1;
       game.currentPlayer = Math.abs(game.currentPlayer - 1);
+      $(`#player${game.currentPlayer +1}-name`).toggleClass("pulse")
       game.planets.forEach( planet => {
         planet.centerX = planet.initialCenterX
         planet.centerY = planet.initialCenterY
@@ -177,7 +149,7 @@ class Planet {
         this.rotationAngle = 2*Math.PI*this.orbitCount - this.rotationAngle
        
       }
-      ctx.fillText(`Rotation Angle: ${game.planets[2].rotationAngle}`,50,200)
+      game.ctx.fillText(`Rotation Angle: ${game.planets[2].rotationAngle}`,50,200)
 
   }
   orbit() {
@@ -201,13 +173,13 @@ class Planet {
     // }
     this.drawOrbit();
     
-    ctx.beginPath();
-    ctx.arc(this.centerX, this.centerY, this.radius, 0, 2 * Math.PI);
-    ctx.fillStyle = this.color;
-    ctx.fill();
-    ctx.strokeStyle = "white";
-    ctx.lineWidth = 2;
-    ctx.stroke();
+    game.ctx.beginPath();
+    game.ctx.arc(this.centerX, this.centerY, this.radius, 0, 2 * Math.PI);
+    game.ctx.fillStyle = this.color;
+    game.ctx.fill();
+    game.ctx.strokeStyle = "white";
+    game.ctx.lineWidth = 2;
+    game.ctx.stroke();
   }
   drawOrbit() {
     let homeX = game.planets[0].centerX;
@@ -215,23 +187,29 @@ class Planet {
     this.orbitRadius = Math.sqrt(
       Math.pow(this.initialCenterX - homeX, 2) + Math.pow(this.initialCenterY - homeY, 2)
     );
-    ctx.strokeStyle = "rgba(255,255,255,0.5)";
-    ctx.beginPath();
-    ctx.arc(homeX, homeY, this.orbitRadius, 0, 2 * Math.PI);
-    ctx.stroke();
+    game.ctx.strokeStyle = "rgba(255,255,255,0.5)";
+    game.ctx.beginPath();
+    game.ctx.arc(homeX, homeY, this.orbitRadius, 0, 2 * Math.PI);
+    game.ctx.stroke();
   }
 }
 
 const game = {
-  targetPlanetCount: 5,
+  targetPlanetCount: 4,
   planets: [],
   ships: [],
   currentPlayer: 0,
   time: 0,
+  animationID:null,
+  canvas:null,
+  ctx:null,
   initialize() {
     document.onclick = () => {
       game.ships[game.currentPlayer].orbiting = false;
     };
+
+    this.canvas = document.getElementById("canvas");
+    this.ctx = canvas.getContext("2d");
 
     const home = new Planet();
     home.hit = true
@@ -277,18 +255,18 @@ const game = {
     })
   },
   clearCanvas() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    game.ctx.clearRect(0, 0, canvas.width, canvas.height);
   },
   animate() {
     game.clearCanvas();
 
     //Generate gradient background --------------
-    let bckgrd = ctx.createRadialGradient(110, 375, 0, 0, 375, 1200);
+    let bckgrd = game.ctx.createRadialGradient(110, 375, 0, 0, 375, 1200);
     bckgrd.addColorStop(0, "rgba(255, 0, 106, 1.000)");
     bckgrd.addColorStop(0.5, "rgba(134, 0, 252, 0.500)");
     bckgrd.addColorStop(1, "rgba(14, 185, 247, 0.000)");
-    ctx.fillStyle = bckgrd;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    game.ctx.fillStyle = bckgrd;
+    game.ctx.fillRect(0, 0, canvas.width, canvas.height);
     //-------------------------------------------
 
     game.time = new Date();
@@ -302,21 +280,33 @@ const game = {
     game.displayScoreboard()
     game.overCheck()
     game.newRoundCheck()
-    window.requestAnimationFrame(game.animate);
+    game.animationID = window.requestAnimationFrame(game.animate);
   },
   displayScoreboard(){
     $("#player1-sats").text(game.ships[0].lives.toString(10).padStart(2,"0"));
     $("#player1-orbs").text(game.ships[0].score.toString(10).padStart(2,"0"))
     $("#player2-sats").text(game.ships[1].lives.toString(10).padStart(2,"0"))
     $("#player2-orbs").text(game.ships[1].score.toString(10).padStart(2,"0"))
+    if (game.currentPlayer === 0){
+      $("#player1-name").text("PLAYER 1 ⎋")
+      $("#player2-name").text("PLAYER 2")
+    } else {
+      $("#player1-name").text("PLAYER 1")
+      $("#player2-name").text("PLAYER 2 ⎋")
+    }
   },
   overCheck(){
     if (game.ships[0].lives === 0 || game.ships[1].lives === 0) {
-      
       $('#overlay').css("display", "block");
       $('#overlay').on("click", () => {
         if ($('#overlay').css("display") === "block"){
+          game.ctx = null
+          window.cancelAnimationFrame(game.animationID);
+          const canvas = document.getElementById("canvas");
+          game.ctx = canvas.getContext("2d");
+          $('#overlay').css("display", "none");
           game.initialize() 
+
         }
 
       })
