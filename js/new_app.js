@@ -105,10 +105,7 @@ class Ship {
       game.ships[game.currentPlayer].lives -= 1;
       game.currentPlayer = Math.abs(game.currentPlayer - 1);
       $(`#player${game.currentPlayer +1}-name`).toggleClass("pulse")
-      game.planets.forEach( planet => {
-        planet.centerX = planet.initialCenterX
-        planet.centerY = planet.initialCenterY
-      })
+
     }
   }
 }
@@ -132,17 +129,18 @@ class Planet {
     this.orbitCount = 0;
   }
   updateRotationAngle() {
-    if (this.firstIteration === true){
-      console.log(this.firstIteration)
-      this.timerStartAngle =
-        this.angularVelocity * (1 / 60) * game.time.getSeconds() +
-        this.angularVelocity * (1 / 60000) * game.time.getMilliseconds();
-      this.firstIteration = false
+    // if (this.firstIteration === true){
+
+      // this.timerStartAngle =
+      // this.angularVelocity * (1 / 60) * game.time.getSeconds() +
+      // this.angularVelocity * (1 / 60000) * game.time.getMilliseconds();
+      // this.firstIteration = false
 
       this.rotationAngle = this.angularVelocity * (1 / 60) * game.time.getSeconds() +
       this.angularVelocity * (1 / 60000) * game.time.getMilliseconds() - this.timerStartAngle + this.startAngleToHome
       console.log(this.rotationAngle)
-    }
+    
+
     // if (this.orbitCount === 0) {
     //   this.rotationAngle = this.angularVelocity * (1 / 60) * game.time.getSeconds() +
     //   this.angularVelocity * (1 / 60000) * game.time.getMilliseconds() - this.timerStartAngle + this.startAngleToHome
@@ -171,12 +169,11 @@ class Planet {
     }
   }
   draw(i) {
-    // if (i !== 0){
-    //   this.drawOrbit();
-      this.updateRotationAngle();
-    //   this.orbit();
-    // }
     this.drawOrbit();
+    if (i !== 0){
+      this.updateRotationAngle();
+      this.orbit();
+    }
     
     
     game.ctx.beginPath();
