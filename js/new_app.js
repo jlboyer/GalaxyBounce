@@ -391,4 +391,4 @@ const game = {
   }
 };
 
-game.initialize();
+game.initialize()
