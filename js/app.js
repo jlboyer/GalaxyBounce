@@ -1,4 +1,4 @@
-class Ship {
+  class Ship {
   constructor() {
     this.lives = 5;
     this.score = 0;
