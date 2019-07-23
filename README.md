@@ -16,7 +16,7 @@ A players’ satellite cannot return home, but can revisit planets to complete t
 If a player’s satellite misses the orbit, you loose a satellite and when you run out of satellites the other player wins. 
 
 
-Potential User Stories 
+User Stories 
 
 Indie Game Enthusiast - Interested in simple play experience (single click) and simple graphics (everything is an arc) that comes together in a minimal yet, visually rewarding way.
 Test- Intuitive play experience without needing instructions, no frustrating elements such as load time or glitches, quality aesthetic 
